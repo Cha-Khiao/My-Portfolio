@@ -21,7 +21,17 @@ export function AllActivitiesClient({ initialActivities }: ActivitiesClientProps
   // Extract unique periods/years for filter pills
   const periods = React.useMemo(() => {
     const years = Array.from(new Set(activities.map((a) => a.period).filter(Boolean)));
-    return years;
+    const extractYear = (p?: string | null) => {
+      if (!p) return 0;
+      const matches = p.match(/\b(19\d\d|20\d\d|25\d\d)\b/g);
+      if (!matches || matches.length === 0) return 0;
+      const parsed = matches.map((y) => {
+        const val = parseInt(y, 10);
+        return val > 2400 ? val - 543 : val;
+      });
+      return Math.max(...parsed);
+    };
+    return years.sort((a, b) => extractYear(b) - extractYear(a));
   }, [activities]);
 
   // Filter & Search Logic

@@ -7,10 +7,21 @@ import { isAuthenticated } from '@/lib/auth';
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
+function extractYearFromPeriod(period?: string | null): number {
+  if (!period) return 0;
+  const matches = period.match(/\b(19\d\d|20\d\d|25\d\d)\b/g);
+  if (!matches || matches.length === 0) return 0;
+  const years = matches.map((y) => {
+    const val = parseInt(y, 10);
+    return val > 2400 ? val - 543 : val;
+  });
+  return Math.max(...years);
+}
+
 export async function GET() {
   try {
     const activities = await prisma.activity.findMany({
-      orderBy: { order: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
     const parsed = activities.map((a) => {
       let images: string[] = [];
@@ -19,7 +30,15 @@ export async function GET() {
       } catch (e) {}
       return { ...a, images };
     });
-    return NextResponse.json(parsed);
+
+    const sorted = parsed.sort((a, b) => {
+      const yearA = extractYearFromPeriod(a.period);
+      const yearB = extractYearFromPeriod(b.period);
+      if (yearA !== yearB) return yearB - yearA;
+      return 0;
+    });
+
+    return NextResponse.json(sorted);
   } catch (err) {
     console.warn('Database error fetching activities, using fallback data');
     return NextResponse.json(defaultActivities);

@@ -10,11 +10,8 @@ export const revalidate = 0;
 export async function GET() {
   try {
     const projects = await prisma.project.findMany({
-      orderBy: { order: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
-    if (projects.length === 0) {
-      return NextResponse.json(defaultProjects);
-    }
     return NextResponse.json(projects);
   } catch (err) {
     console.warn('Database error fetching projects, using fallback data');

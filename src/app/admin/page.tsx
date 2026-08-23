@@ -895,14 +895,32 @@ export default function AdminDashboardPage() {
     return matchQuery && matchFeatured;
   });
 
-  const filteredActivities = activities.filter((a) => {
-    const matchQuery =
-      a.title.toLowerCase().includes(activitySearch.toLowerCase()) ||
-      (a.org && a.org.toLowerCase().includes(activitySearch.toLowerCase())) ||
-      (a.role && a.role.toLowerCase().includes(activitySearch.toLowerCase()));
-    const matchFeatured = activityFeaturedOnly ? a.featured : true;
-    return matchQuery && matchFeatured;
-  });
+  const extractYear = (period?: string | null) => {
+    if (!period) return 0;
+    const matches = period.match(/\b(19\d\d|20\d\d|25\d\d)\b/g);
+    if (!matches || matches.length === 0) return 0;
+    const years = matches.map((y) => {
+      const val = parseInt(y, 10);
+      return val > 2400 ? val - 543 : val;
+    });
+    return Math.max(...years);
+  };
+
+  const filteredActivities = activities
+    .filter((a) => {
+      const matchQuery =
+        a.title.toLowerCase().includes(activitySearch.toLowerCase()) ||
+        (a.org && a.org.toLowerCase().includes(activitySearch.toLowerCase())) ||
+        (a.role && a.role.toLowerCase().includes(activitySearch.toLowerCase()));
+      const matchFeatured = activityFeaturedOnly ? a.featured : true;
+      return matchQuery && matchFeatured;
+    })
+    .sort((a, b) => {
+      const yA = extractYear(a.period);
+      const yB = extractYear(b.period);
+      if (yA !== yB) return yB - yA;
+      return 0;
+    });
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20 pt-20 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
@@ -1177,28 +1195,17 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1">ลำดับการแสดงผล</label>
-                  <input
-                    type="number"
-                    value={projectForm.order}
-                    onChange={(e) => setProjectForm({ ...projectForm, order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-xl bg-background border border-border focus:border-blue-500 text-xs outline-none"
-                  />
-                </div>
-                <div className="flex items-center gap-2 pt-6">
-                  <input
-                    type="checkbox"
-                    id="projectFeatured"
-                    checked={projectForm.featured}
-                    onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
-                    className="rounded border-border text-blue-600 focus:ring-blue-500 cursor-pointer"
-                  />
-                  <label htmlFor="projectFeatured" className="text-xs text-foreground font-medium cursor-pointer">
-                    แสดงในหน้าแรก
-                  </label>
-                </div>
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="projectFeatured"
+                  checked={projectForm.featured}
+                  onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
+                  className="rounded border-border text-blue-600 focus:ring-blue-500 cursor-pointer"
+                />
+                <label htmlFor="projectFeatured" className="text-xs text-foreground font-medium cursor-pointer">
+                  แสดงในหน้าแรก (Featured)
+                </label>
               </div>
 
               <div className="pt-2">
@@ -1213,41 +1220,43 @@ export default function AdminDashboardPage() {
             </form>
           </div>
 
-          {/* List on Right */}
+          {/* Right Column: Projects List */}
           <div className="lg:col-span-7 space-y-4">
-            <div className="flex items-center justify-between gap-2 mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <h2 className="font-outfit text-base font-bold text-foreground">
-                  รายการ Projects ทั้งหมด
+                  โปรเจกต์ทั้งหมด
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-mono font-bold bg-blue-500/10 text-blue-600 dark:text-blue-400">
                   {filteredProjects.length}
                 </span>
               </div>
-            </div>
 
-            <div className="flex items-center gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-fg-tertiary" />
-                <input
-                  type="text"
-                  value={projectSearch}
-                  onChange={(e) => setProjectSearch(e.target.value)}
-                  placeholder="ค้นหาโปรเจกต์ในระบบ..."
-                  className="w-full pl-8 pr-3 py-2 rounded-xl bg-card border border-border text-xs outline-none focus:border-blue-500 transition-colors"
-                />
+              {/* Search & Filter */}
+              <div className="flex items-center gap-2 flex-1 sm:max-w-xs">
+                <div className="relative flex-1">
+                  <input
+                    type="text"
+                    value={projectSearch}
+                    onChange={(e) => setProjectSearch(e.target.value)}
+                    placeholder="ค้นหาโปรเจกต์..."
+                    className="w-full pl-8 pr-3 py-1.5 rounded-xl bg-card border border-border focus:border-blue-500 text-xs outline-none"
+                  />
+                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-fg-tertiary" />
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setProjectFeaturedOnly(!projectFeaturedOnly)}
+                  className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-colors whitespace-nowrap cursor-pointer ${
+                    projectFeaturedOnly
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
+                      : 'bg-card border-border text-fg-secondary hover:text-foreground'
+                  }`}
+                >
+                  ⭐ หน้าแรก
+                </button>
               </div>
-              <button
-                type="button"
-                onClick={() => setProjectFeaturedOnly(!projectFeaturedOnly)}
-                className={`px-3 py-2 rounded-xl text-xs font-semibold border transition-colors whitespace-nowrap cursor-pointer ${
-                  projectFeaturedOnly
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-sm'
-                    : 'bg-card border-border text-fg-secondary hover:text-foreground'
-                }`}
-              >
-                ⭐ หน้าแรก
-              </button>
             </div>
 
             {filteredProjects.length === 0 ? (
@@ -1255,7 +1264,7 @@ export default function AdminDashboardPage() {
                 ไม่พบผลงานที่ตรงกับคำค้นหา
               </div>
             ) : (
-              filteredProjects.map((p) => {
+              filteredProjects.map((p, index) => {
                 const demoLink = p.demoUrl || `/demo?preview=${p.preview}`;
                 return (
                   <div
@@ -1300,7 +1309,7 @@ export default function AdminDashboardPage() {
                         <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-outfit text-sm font-bold text-foreground truncate">{p.title}</h3>
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-tag-bg text-fg-tertiary font-mono">
-                            #{p.order}
+                            #{index + 1}
                           </span>
                           {p.featured && (
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
@@ -1507,28 +1516,17 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1">ลำดับการแสดงผล</label>
-                  <input
-                    type="number"
-                    value={activityForm.order}
-                    onChange={(e) => setActivityForm({ ...activityForm, order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-xl bg-background border border-border focus:border-amber-500 text-xs outline-none"
-                  />
-                </div>
-                <div className="flex items-center gap-2 pt-6">
-                  <input
-                    type="checkbox"
-                    id="activityFeatured"
-                    checked={activityForm.featured}
-                    onChange={(e) => setActivityForm({ ...activityForm, featured: e.target.checked })}
-                    className="rounded border-border text-amber-500 focus:ring-amber-500 cursor-pointer"
-                  />
-                  <label htmlFor="activityFeatured" className="text-xs text-foreground font-medium cursor-pointer">
-                    แสดงในหน้าแรก
-                  </label>
-                </div>
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="activityFeatured"
+                  checked={activityForm.featured}
+                  onChange={(e) => setActivityForm({ ...activityForm, featured: e.target.checked })}
+                  className="rounded border-border text-amber-500 focus:ring-amber-500 cursor-pointer"
+                />
+                <label htmlFor="activityFeatured" className="text-xs text-foreground font-medium cursor-pointer">
+                  แสดงในหน้าแรก (Featured)
+                </label>
               </div>
 
               <div className="pt-2">
@@ -1586,7 +1584,7 @@ export default function AdminDashboardPage() {
                 ไม่พบกิจกรรมที่ตรงกับคำค้นหา
               </div>
             ) : (
-              filteredActivities.map((act) => {
+              filteredActivities.map((act, index) => {
                 const imgCount = Array.isArray(act.images) ? act.images.length : 0;
                 return (
                   <div
@@ -1603,7 +1601,7 @@ export default function AdminDashboardPage() {
                             {act.title}
                           </h3>
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-tag-bg text-fg-tertiary font-mono">
-                            #{act.order}
+                            #{index + 1}
                           </span>
                           {act.featured && (
                             <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
@@ -1768,28 +1766,17 @@ export default function AdminDashboardPage() {
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-foreground mb-1">ลำดับการแสดงผล</label>
-                  <input
-                    type="number"
-                    value={certForm.order}
-                    onChange={(e) => setCertForm({ ...certForm, order: parseInt(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 rounded-xl bg-background border border-border focus:border-emerald-500 text-xs outline-none"
-                  />
-                </div>
-                <div className="flex items-center gap-2 pt-6">
-                  <input
-                    type="checkbox"
-                    id="certFeatured"
-                    checked={certForm.featured}
-                    onChange={(e) => setCertForm({ ...certForm, featured: e.target.checked })}
-                    className="rounded border-border text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                  />
-                  <label htmlFor="certFeatured" className="text-xs text-foreground font-medium cursor-pointer">
-                    แสดงในหน้าแรก
-                  </label>
-                </div>
+              <div className="flex items-center gap-2 pt-2">
+                <input
+                  type="checkbox"
+                  id="certFeatured"
+                  checked={certForm.featured}
+                  onChange={(e) => setCertForm({ ...certForm, featured: e.target.checked })}
+                  className="rounded border-border text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                />
+                <label htmlFor="certFeatured" className="text-xs text-foreground font-medium cursor-pointer">
+                  แสดงในหน้าแรก (Featured)
+                </label>
               </div>
 
               <div className="pt-2">
@@ -1847,7 +1834,7 @@ export default function AdminDashboardPage() {
                 ไม่พบใบรับรองที่ตรงกับคำค้นหา
               </div>
             ) : (
-              filteredCertificates.map((c) => (
+              filteredCertificates.map((c, index) => (
                 <div
                   key={c.id}
                   className="p-4 rounded-2xl bg-card border border-border flex items-center justify-between gap-3.5 shadow-sm hover:border-emerald-500/40 transition-all"
@@ -1866,7 +1853,7 @@ export default function AdminDashboardPage() {
                       <div className="flex items-center gap-2 flex-wrap">
                         <h3 className="font-outfit text-sm font-bold text-foreground truncate">{c.name}</h3>
                         <span className="text-[10px] px-2 py-0.5 rounded-full bg-tag-bg text-fg-tertiary font-mono">
-                          #{c.order}
+                          #{index + 1}
                         </span>
                         {c.featured && (
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
@@ -2016,7 +2003,7 @@ export default function AdminDashboardPage() {
               </div>
             </div>
 
-            {skillsList.map((item) => {
+            {skillsList.map((item, index) => {
               const matchedIcon = AVAILABLE_ICONS.find((ic) => ic.id === item.icon) || AVAILABLE_ICONS[0];
               const IconComp = matchedIcon.icon;
 
@@ -2031,7 +2018,12 @@ export default function AdminDashboardPage() {
                         <IconComp className="w-5 h-5" />
                       </div>
                       <div>
-                        <h3 className="font-outfit text-sm font-bold text-foreground">{item.title}</h3>
+                        <div className="flex items-center gap-2">
+                          <h3 className="font-outfit text-sm font-bold text-foreground">{item.title}</h3>
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-tag-bg text-fg-tertiary font-mono">
+                            #{index + 1}
+                          </span>
+                        </div>
                         <p className="text-xs text-fg-secondary mt-0.5 leading-relaxed">{item.desc}</p>
                       </div>
                     </div>

@@ -10,11 +10,8 @@ export const revalidate = 0;
 export async function GET() {
   try {
     const certs = await prisma.certificate.findMany({
-      orderBy: { order: 'asc' },
+      orderBy: { createdAt: 'desc' },
     });
-    if (certs.length === 0) {
-      return NextResponse.json(defaultCertificates);
-    }
     return NextResponse.json(certs);
   } catch (err) {
     console.warn('Database error fetching certificates, using fallback data');
