@@ -1,4 +1,4 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { isAuthenticated } from '@/lib/auth';
 
@@ -12,15 +12,24 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
     const { id } = await context.params;
     const data = await req.json();
 
-    const updated = await prisma.certificate.update({
+    const updated = await prisma.certificate.upsert({
       where: { id },
-      data: {
+      update: {
         name: data.name,
         org: data.org,
-        color: data.color,
-        imageUrl: data.imageUrl,
+        color: data.color || '#4F46E5',
+        imageUrl: data.imageUrl || '',
         featured: Boolean(data.featured),
-        order: Number(data.order),
+        order: Number(data.order) || 1,
+      },
+      create: {
+        id,
+        name: data.name,
+        org: data.org,
+        color: data.color || '#4F46E5',
+        imageUrl: data.imageUrl || '',
+        featured: Boolean(data.featured),
+        order: Number(data.order) || 1,
       },
     });
     return NextResponse.json(updated);

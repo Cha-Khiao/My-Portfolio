@@ -12,16 +12,26 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
     const { id } = await context.params;
     const data = await req.json();
 
-    const updated = await prisma.project.update({
+    const updated = await prisma.project.upsert({
       where: { id },
-      data: {
+      update: {
         title: data.title,
         desc: data.desc,
-        preview: data.preview,
-        githubUrl: data.githubUrl,
-        demoUrl: data.demoUrl,
+        preview: data.preview || 'portfolio',
+        githubUrl: data.githubUrl || '',
+        demoUrl: data.demoUrl || '',
         featured: Boolean(data.featured),
-        order: Number(data.order),
+        order: Number(data.order) || 1,
+      },
+      create: {
+        id,
+        title: data.title,
+        desc: data.desc,
+        preview: data.preview || 'portfolio',
+        githubUrl: data.githubUrl || '',
+        demoUrl: data.demoUrl || '',
+        featured: Boolean(data.featured),
+        order: Number(data.order) || 1,
       },
     });
     return NextResponse.json(updated);

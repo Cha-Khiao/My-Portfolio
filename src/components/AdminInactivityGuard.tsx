@@ -7,7 +7,7 @@ import { Clock, RefreshCw, LogOut } from 'lucide-react';
 interface InactivityGuardProps {
   timeoutMinutes?: number; // Total idle timeout (default: 20 minutes)
   warningSeconds?: number; // Warning time before auto logout (default: 60 seconds)
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 export function AdminInactivityGuard({
@@ -121,7 +121,7 @@ export function AdminInactivityGuard({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex-1 py-2.5 rounded-xl bg-tag-bg hover:bg-border text-fg-secondary text-xs font-medium transition-colors flex items-center justify-center gap-1"
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1 shadow-md"
               >
                 <LogOut className="w-3.5 h-3.5" /> ออกจากระบบ
               </button>

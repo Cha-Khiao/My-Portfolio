@@ -20,9 +20,11 @@ export interface ProfileData {
   lineId?: string;
   lineQrUrl?: string;
   phone?: string;
+  resumeUrl?: string;
   aboutHeading?: string;
   projectsHeading?: string;
   certificatesHeading?: string;
+  activitiesHeading?: string;
   skillsHeading?: string;
   contactHeading?: string;
   contactDesc?: string;
@@ -46,6 +48,20 @@ export interface CertificateData {
   org: string;
   color: string;
   imageUrl?: string;
+  featured: boolean;
+  order: number;
+}
+
+export interface ActivityData {
+  id: string;
+  title: string;
+  role?: string;
+  org?: string;
+  period?: string;
+  desc?: string;
+  imagesJson?: string;
+  images?: string[];
+  linkUrl?: string;
   featured: boolean;
   order: number;
 }
@@ -91,6 +107,7 @@ export const defaultProfile: ProfileData = {
   about2: 'ผมจึงมุ่งเน้นการใช้ความถนัดด้าน AI มาประยุกต์ใช้งานในหลากหลายมิติ ไม่ว่าจะเป็นการพัฒนาซอฟต์แวร์ เว็บแอปพลิเคชัน การจัดการข้อมูล หรือการแก้ปัญหาเฉพาะทาง โดยทำงานร่วมกับ AI อย่างเป็นระบบ ตั้งแต่วิเคราะห์โจทย์ ออกแบบ วางแผน ไปจนถึงทดสอบและส่งมอบผลงานที่ใช้งานได้จริง',
   projectsHeading: 'Projects',
   certificatesHeading: 'Certificates',
+  activitiesHeading: 'Activities & Experience',
   skillsHeading: 'Skills & Capabilities',
   contactHeading: 'Get in Touch',
   contactDesc: 'ผมกำลังมองหาโอกาสในการฝึกงาน เพื่อนำทักษะด้านการประยุกต์ใช้ AI ทำงานอย่างเป็นระบบ การสร้างระบบอัตโนมัติ (GAS) และการจัดการงานดิจิทัลไปช่วยซัพพอร์ตทีม พร้อมเรียนรู้และพัฒนาตัวเองอย่างเต็มที่ หากองค์กรหรือทีมของท่านกำลังเปิดรับนักศึกษาฝึกงาน สามารถติดต่อพูดคุยกับผมได้เลยครับ',
@@ -101,6 +118,7 @@ export const defaultProfile: ProfileData = {
   lineId: '',
   lineQrUrl: '/images/line-qr.jpg',
   phone: '064-965-9703',
+  resumeUrl: '',
   skillsJson: JSON.stringify(defaultSkills),
 };
 
@@ -120,4 +138,33 @@ export const defaultCertificates: CertificateData[] = [
   { id: '4', org: 'freeCodeCamp', name: 'JavaScript Algorithms & Data Structures', color: '#B45309', imageUrl: '', featured: false, order: 4 },
   { id: '5', org: 'Coursera', name: 'Python for Everybody Specialization', color: '#0369A1', imageUrl: '', featured: false, order: 5 },
   { id: '6', org: 'Coursera', name: 'Version Control with Git', color: '#BE123C', imageUrl: '', featured: false, order: 6 },
+];
+
+export const defaultActivities: ActivityData[] = [
+  {
+    id: '1',
+    title: 'ผู้ช่วยวิทยากรและประสานงานกิจกรรมอบรมการประยุกต์ใช้ AI ในการทำงาน',
+    role: 'ผู้ช่วยวิทยากร / ผู้ประสานงาน',
+    org: 'สาขาวิทยาการคอมพิวเตอร์',
+    period: '2024',
+    desc: 'ร่วมจัดเตรียมเอกสาร สื่อการสอน และให้คำแนะนำแก่ผู้เข้าร่วมอบรมเกี่ยวกับการใช้งาน Generative AI เพื่อเพิ่มประสิทธิภาพงานเอกสารและการแก้ปัญหาเบื้องต้น',
+    imagesJson: '[]',
+    images: [],
+    linkUrl: '',
+    featured: true,
+    order: 1,
+  },
+  {
+    id: '2',
+    title: 'เข้าร่วมการแข่งขันและประกวดนวัตกรรมดิจิทัล',
+    role: 'ผู้เข้าร่วมแข่งขัน',
+    org: 'สถาบันการศึกษา',
+    period: '2023 - 2024',
+    desc: 'นำเสนอแนวคิดการพัฒนาระบบอัตโนมัติด้วย Google Apps Script และ AI ในการจัดการฐานข้อมูลดิจิทัลสำหรับงานองค์กร',
+    imagesJson: '[]',
+    images: [],
+    linkUrl: '',
+    featured: true,
+    order: 2,
+  },
 ];

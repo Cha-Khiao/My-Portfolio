@@ -3,6 +3,9 @@ import { prisma } from '@/lib/prisma';
 import { defaultProjects } from '@/lib/initial-data';
 import { isAuthenticated } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export async function GET() {
   try {
     const projects = await prisma.project.findMany({

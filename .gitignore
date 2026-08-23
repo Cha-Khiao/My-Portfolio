@@ -19,9 +19,18 @@
 # Vercel Deployment Folder
 .vercel
 
+# Prisma Generated Client
+/src/generated/
+
 # Local Uploads (Files uploaded locally during dev)
 /public/uploads/*
 !/public/uploads/.gitkeep
+
+# Database & SQLite files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite-journal
 
 # Debug Logs
 npm-debug.log*
@@ -42,3 +51,5 @@ next-env.d.ts
 # IDE / Editor Files
 .vscode/
 .idea/
+*.swp
+*.swo

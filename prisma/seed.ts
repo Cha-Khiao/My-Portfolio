@@ -1,5 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-import { defaultCertificates, defaultProfile, defaultProjects } from '../src/lib/initial-data';
+import { PrismaClient } from '../src/generated/client';
+import { defaultActivities, defaultCertificates, defaultProfile, defaultProjects } from '../src/lib/initial-data';
 
 const prisma = new PrismaClient();
 
@@ -35,6 +35,18 @@ async function main() {
     });
   }
   console.log('Certificates seeded.');
+
+  // 4. Activities
+  for (const a of defaultActivities) {
+    const { id, images, ...data } = a;
+    await prisma.activity.create({
+      data: {
+        ...data,
+        imagesJson: JSON.stringify(images || []),
+      },
+    });
+  }
+  console.log('Activities seeded.');
   console.log('Seeding completed successfully!');
 }
 

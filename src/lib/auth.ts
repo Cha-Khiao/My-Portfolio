@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers';
-import { supabaseAdmin, isSupabaseConfigured } from './supabase';
+import { supabase, supabaseAdmin, isSupabaseConfigured } from './supabase';
 
 const COOKIE_NAME = 'portfolio_admin_token';
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || '';
@@ -20,9 +20,10 @@ export async function isAuthenticated(): Promise<boolean> {
   if (!token) return false;
 
   // Supabase Auth Session verification
-  if (isSupabaseConfigured && supabaseAdmin) {
+  const client = supabaseAdmin || supabase;
+  if (isSupabaseConfigured && client) {
     try {
-      const { data, error } = await supabaseAdmin.auth.getUser(token);
+      const { data, error } = await client.auth.getUser(token);
       if (error || !data.user) {
         return false;
       }
@@ -50,9 +51,10 @@ export async function getAdminSession(): Promise<AdminUserSession> {
 
   if (!token) return { authenticated: false };
 
-  if (isSupabaseConfigured && supabaseAdmin) {
+  const client = supabaseAdmin || supabase;
+  if (isSupabaseConfigured && client) {
     try {
-      const { data, error } = await supabaseAdmin.auth.getUser(token);
+      const { data, error } = await client.auth.getUser(token);
       if (!error && data.user) {
         if (ADMIN_EMAIL && data.user.email?.toLowerCase() !== ADMIN_EMAIL.toLowerCase()) {
           return { authenticated: false };
@@ -78,7 +80,7 @@ export async function setAdminSession(token: string): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env.NODE_ENV === 'production' && Boolean(process.env.VERCEL),
     sameSite: 'lax',
     maxAge: 60 * 60 * 24 * 7, // 7 days
     path: '/',

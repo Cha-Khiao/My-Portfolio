@@ -2,30 +2,46 @@
 
 import * as React from 'react';
 import Link from 'next/link';
-import { Mail, ArrowRight, Phone } from 'lucide-react';
+import { Mail, Phone, FileText } from 'lucide-react';
 import { GithubIcon } from '@/components/icons/GithubIcon';
 import { LineIcon } from '@/components/icons/LineIcon';
 import { ProjectCard } from '@/components/ProjectCard';
 import { CertificateCard } from '@/components/CertificateCard';
 import { CertificateModal } from '@/components/CertificateModal';
+import { ResumeModal } from '@/components/ResumeModal';
 import { LineModal } from '@/components/LineModal';
+import { ActivityCard } from '@/components/ActivityCard';
 import { SkillsSection } from '@/components/SkillsSection';
-import { CertificateData, ProjectData, ProfileData, SkillGroup, defaultCertificates, defaultProfile, defaultProjects, defaultSkills } from '@/lib/initial-data';
+import {
+  CertificateData,
+  ProjectData,
+  ProfileData,
+  SkillGroup,
+  ActivityData,
+  defaultCertificates,
+  defaultProfile,
+  defaultProjects,
+  defaultSkills,
+  defaultActivities,
+} from '@/lib/initial-data';
 
 export default function HomePage() {
   const [profile, setProfile] = React.useState<ProfileData>(defaultProfile);
   const [projects, setProjects] = React.useState<ProjectData[]>(defaultProjects);
   const [certificates, setCertificates] = React.useState<CertificateData[]>(defaultCertificates);
+  const [activities, setActivities] = React.useState<ActivityData[]>(defaultActivities);
   const [selectedCert, setSelectedCert] = React.useState<CertificateData | null>(null);
   const [isLineModalOpen, setIsLineModalOpen] = React.useState(false);
+  const [isResumeModalOpen, setIsResumeModalOpen] = React.useState(false);
 
   React.useEffect(() => {
     async function loadData() {
       try {
-        const [profRes, projRes, certRes] = await Promise.allSettled([
-          fetch('/api/profile').then((r) => r.json()),
-          fetch('/api/projects').then((r) => r.json()),
-          fetch('/api/certificates').then((r) => r.json()),
+        const [profRes, projRes, certRes, actRes] = await Promise.allSettled([
+          fetch('/api/profile', { cache: 'no-store' }).then((r) => r.json()),
+          fetch('/api/projects', { cache: 'no-store' }).then((r) => r.json()),
+          fetch('/api/certificates', { cache: 'no-store' }).then((r) => r.json()),
+          fetch('/api/activities', { cache: 'no-store' }).then((r) => r.json()),
         ]);
 
         if (profRes.status === 'fulfilled' && profRes.value && !profRes.value.error) {
@@ -36,6 +52,9 @@ export default function HomePage() {
         }
         if (certRes.status === 'fulfilled' && Array.isArray(certRes.value) && certRes.value.length > 0) {
           setCertificates(certRes.value);
+        }
+        if (actRes.status === 'fulfilled' && Array.isArray(actRes.value) && actRes.value.length > 0) {
+          setActivities(actRes.value);
         }
       } catch (e) {
         console.warn('Using local fallback data');
@@ -49,6 +68,9 @@ export default function HomePage() {
 
   const featuredCerts = certificates.filter((c) => c.featured).slice(0, 3);
   const displayCerts = featuredCerts.length ? featuredCerts : certificates.slice(0, 3);
+
+  const featuredActivities = activities.filter((a) => a.featured);
+  const displayActivities = featuredActivities.length ? featuredActivities : activities;
 
   const emailAddress = profile.email || defaultProfile.email;
   const githubAddress = profile.githubUrl || defaultProfile.githubUrl;
@@ -98,12 +120,16 @@ export default function HomePage() {
 
         {/* Quick CTA Actions */}
         <div className="flex flex-wrap items-center justify-center gap-3">
-          <a
-            href="#projects"
-            className="btn-primary px-6 py-2.5 text-xs sm:text-sm"
-          >
-            ดูผลงาน
-          </a>
+          {profile.resumeUrl ? (
+            <button
+              type="button"
+              onClick={() => setIsResumeModalOpen(true)}
+              className="btn-primary px-6 py-2.5 text-xs sm:text-sm gap-1.5 cursor-pointer shadow-md hover:scale-[1.02] active:scale-[0.98]"
+              title="เปิดดูเรซูเม่"
+            >
+              <FileText className="w-3.5 h-3.5" /> Resume
+            </button>
+          ) : null}
           <a
             href="#contact"
             className="btn-contact px-6 py-2.5 text-xs sm:text-sm gap-1.5"
@@ -158,6 +184,35 @@ export default function HomePage() {
           </Link>
         </div>
       </section>
+
+      {/* ========================================================================= */}
+      {/* ACTIVITIES & EXPERIENCE SECTION (PLACED ABOVE CERTIFICATES) */}
+      {/* ========================================================================= */}
+      {displayActivities.length > 0 && (
+        <section id="activities" className="scroll-mt-24">
+          <div className="flex items-center gap-4 mb-6">
+            <h2 className="font-outfit font-bold text-lg sm:text-xl text-foreground tracking-tight whitespace-nowrap">
+              {profile.activitiesHeading || 'Activities & Experience'}
+            </h2>
+            <div className="flex-1 h-px bg-border" />
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+            {displayActivities.map((activity) => (
+              <ActivityCard key={activity.id} activity={activity} />
+            ))}
+          </div>
+
+          <div className="text-center mt-8">
+            <Link
+              href="/activities"
+              className="btn-primary px-6 py-2.5 text-xs sm:text-sm font-semibold shadow-md hover:scale-[1.02] active:scale-[0.98]"
+            >
+              ดูกิจกรรมและประสบการณ์ทั้งหมด
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* ========================================================================= */}
       {/* CERTIFICATES SECTION */}
@@ -216,7 +271,7 @@ export default function HomePage() {
               {profile.contactDesc || 'ผมกำลังมองหาโอกาสในการฝึกงาน เพื่อนำทักษะด้านการประยุกต์ใช้ AI ทำงานอย่างเป็นระบบ การสร้างระบบอัตโนมัติ (GAS) และการจัดการงานดิจิทัลไปช่วยซัพพอร์ตทีม พร้อมเรียนรู้และพัฒนาตัวเองอย่างเต็มที่ หากองค์กรหรือทีมของท่านกำลังเปิดรับนักศึกษาฝึกงาน สามารถติดต่อพูดคุยกับผมได้เลยครับ'}
             </p>
             
-            {/* Contact Actions in Single Row with Phone at the very front */}
+            {/* Contact Actions */}
             <div className="flex flex-wrap sm:flex-nowrap items-center justify-center gap-2.5 sm:gap-3 pt-2">
               <a
                 href={`tel:${phoneNumber.replace(/-/g, '')}`}
@@ -255,19 +310,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Certificate Modal View */}
+      {/* Modals */}
       <CertificateModal
         cert={selectedCert}
         onClose={() => setSelectedCert(null)}
       />
 
-      {/* LINE QR Code & Profile Modal */}
+      <ResumeModal
+        isOpen={isResumeModalOpen}
+        resumeUrl={profile.resumeUrl || ''}
+        name={profile.name}
+        onClose={() => setIsResumeModalOpen(false)}
+      />
+
       <LineModal
         isOpen={isLineModalOpen}
-        onClose={() => setIsLineModalOpen(false)}
-        lineId={profile.lineId}
         lineUrl={lineUrl}
         lineQrUrl={lineQrUrl}
+        lineId={profile.lineId}
+        onClose={() => setIsLineModalOpen(false)}
       />
     </div>
   );
