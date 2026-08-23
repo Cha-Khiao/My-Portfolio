@@ -173,12 +173,10 @@ npm run dev
 
 ## 👤 ผู้พัฒนา (Author)
 
-- **นายประสพผล ตาลหอม (Prasopphol Talhom)**
 - **GitHub**: [@Cha-Khiao](https://github.com/Cha-Khiao)
-- **Email**: kingdomdemon703@gmail.com
 
 ---
 
 ## 📄 ลิขสิทธิ์ (License)
 
-โปรเจกต์นี้เผยแพร่ภายใต้สัญญาอนุญาต **[MIT License](LICENSE)**
+โปรเจกต์นี้เผยแพร่ภายใต้สัญญาอนุญาต **[MIT License](LICENSE)**
