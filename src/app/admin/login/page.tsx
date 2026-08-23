@@ -1,16 +1,18 @@
 'use client';
 
 import * as React from 'react';
-import { useRouter } from 'next/navigation';
-import { Lock, Mail, X, AlertCircle } from 'lucide-react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Lock, Mail, X, AlertCircle, Clock } from 'lucide-react';
 import Link from 'next/link';
 
-export default function AdminLoginPage() {
+function AdminLoginForm() {
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [error, setError] = React.useState('');
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isTimeout = searchParams.get('reason') === 'timeout';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,6 +62,13 @@ export default function AdminLoginPage() {
           </div>
           <h1 className="font-outfit text-xl font-bold text-foreground tracking-tight">Admin Portal</h1>
         </div>
+
+        {isTimeout && !error && (
+          <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-medium flex items-center gap-2">
+            <Clock className="w-4 h-4 flex-shrink-0" />
+            <span>เซสชันหมดอายุเนื่องจากไม่มีการใช้งานนานเกิน 20 นาที กรุณาเข้าสู่ระบบใหม่อีกครั้ง</span>
+          </div>
+        )}
 
         {error && (
           <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-medium flex items-center gap-2">
@@ -111,3 +120,12 @@ export default function AdminLoginPage() {
     </div>
   );
 }
+
+export default function AdminLoginPage() {
+  return (
+    <React.Suspense fallback={null}>
+      <AdminLoginForm />
+    </React.Suspense>
+  );
+}
+
