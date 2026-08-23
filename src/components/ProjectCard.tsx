@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { ExternalLink } from 'lucide-react';
+import { ExternalLink, Sparkles } from 'lucide-react';
 import { GithubIcon } from '@/components/icons/GithubIcon';
 import { ProjectData } from '@/lib/initial-data';
 
@@ -11,10 +11,31 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project }: ProjectCardProps) {
   const { title, desc, preview, demoUrl, githubUrl } = project;
+  const [imgError, setImgError] = React.useState(false);
+  const [screenshotError, setScreenshotError] = React.useState(false);
 
   // Resolved fallback URLs
   const targetDemoUrl = demoUrl || `/demo?preview=${preview}`;
   const targetGithubUrl = githubUrl || 'https://github.com/Cha-Khiao';
+
+  // Check if demoUrl is a direct image / uploaded file
+  const isImage = demoUrl ? (
+    demoUrl.toLowerCase().endsWith('.png') ||
+    demoUrl.toLowerCase().endsWith('.jpg') ||
+    demoUrl.toLowerCase().endsWith('.jpeg') ||
+    demoUrl.toLowerCase().endsWith('.webp') ||
+    demoUrl.toLowerCase().endsWith('.svg') ||
+    demoUrl.startsWith('/uploads/') ||
+    demoUrl.startsWith('data:image/') ||
+    demoUrl.includes('supabase.co/storage/v1/object/public')
+  ) : false;
+
+  // Check if demoUrl is a live external website URL
+  const isWebUrl = demoUrl ? (
+    (demoUrl.startsWith('http://') || demoUrl.startsWith('https://')) &&
+    !demoUrl.startsWith('/demo') &&
+    !isImage
+  ) : false;
 
   // Spotlight State
   const [spotlightPos, setSpotlightPos] = React.useState<{ x: number; y: number; opacity: number }>({
@@ -39,40 +60,72 @@ export function ProjectCard({ project }: ProjectCardProps) {
   };
 
   const renderPreview = () => {
-    const isLiveUrl = demoUrl && demoUrl.startsWith('http');
-
-    if (isLiveUrl) {
+    // 1. Direct Image Preview (Clean Full-Bleed)
+    if (isImage && !imgError) {
       return (
         <a
           href={targetDemoUrl}
           target="_blank"
           rel="noreferrer"
-          className="group/preview block rounded-xl overflow-hidden border border-border bg-tag-bg mb-3 shadow-inner hover:border-accent/40 transition-all cursor-pointer"
-          title={`คลิกเพื่อเปิดดู Demo ในแท็บใหม่: ${title}`}
+          className="group/preview block rounded-xl overflow-hidden border border-border bg-tag-bg mb-3 shadow-sm hover:border-accent/40 transition-all cursor-pointer relative"
+          title={`คลิกเพื่อเปิดดู Demo: ${title}`}
         >
-          {/* Full Iframe Live View */}
-          <div className="relative h-[135px] sm:h-[140px] overflow-hidden bg-white">
-            <iframe
+          <div className="relative h-[140px] sm:h-[155px] overflow-hidden flex items-center justify-center bg-zinc-900">
+            <img
               src={demoUrl}
-              title={title}
+              alt={title}
               loading="lazy"
-              tabIndex={-1}
-              aria-hidden="true"
-              sandbox="allow-scripts allow-same-origin allow-forms"
-              className="w-full h-full border-0 pointer-events-none group-hover/preview:scale-[1.02] transition-transform duration-200"
+              onError={() => setImgError(true)}
+              className="relative z-10 w-full h-full object-cover group-hover/preview:scale-105 transition-transform duration-300"
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-end justify-between p-2.5 z-20">
+              <span className="text-[10px] font-medium text-white px-2 py-0.5 rounded bg-black/60 backdrop-blur-sm flex items-center gap-1">
+                เปิด Demo <ExternalLink className="w-2.5 h-2.5" />
+              </span>
+            </div>
           </div>
         </a>
       );
     }
 
+    // 2. Live Website Automatic Screenshot Preview (Clean Full-Bleed, No Top Browser Bar)
+    if (isWebUrl && !screenshotError && demoUrl) {
+      const screenshotUrl = `https://s0.wp.com/mshots/v1/${encodeURIComponent(demoUrl)}?w=600&h=380`;
+
+      return (
+        <a
+          href={targetDemoUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="group/preview block rounded-xl overflow-hidden border border-border bg-tag-bg mb-3 shadow-sm hover:border-accent/40 transition-all cursor-pointer"
+          title={`คลิกเพื่อเปิดดู Live Demo: ${title}`}
+        >
+          <div className="relative h-[140px] sm:h-[155px] overflow-hidden bg-zinc-900">
+            <img
+              src={screenshotUrl}
+              alt={title}
+              loading="lazy"
+              onError={() => setScreenshotError(true)}
+              className="w-full h-full object-cover object-top group-hover/preview:scale-105 transition-transform duration-300"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover/preview:opacity-100 transition-opacity flex items-end justify-between p-2.5 z-20">
+              <span className="text-[10px] font-medium text-white px-2 py-0.5 rounded bg-black/70 backdrop-blur-sm flex items-center gap-1">
+                เปิดดูเว็บสด <ExternalLink className="w-2.5 h-2.5" />
+              </span>
+            </div>
+          </div>
+        </a>
+      );
+    }
+
+    // 3. UI Mockup / Template Preview Fallback
     const previewClasses: Record<string, string> = {
-      chat: 'bg-gradient-to-br from-indigo-700 to-indigo-400',
-      tasks: 'bg-gradient-to-br from-teal-700 to-teal-300',
-      quiz: 'bg-gradient-to-br from-orange-700 to-orange-300',
-      portfolio: 'bg-gradient-to-br from-zinc-800 to-zinc-500',
-      weather: 'bg-gradient-to-br from-sky-700 to-sky-300',
-      expense: 'bg-gradient-to-br from-emerald-700 to-emerald-300',
+      chat: 'from-indigo-900/90 via-indigo-800/80 to-slate-900',
+      tasks: 'from-teal-900/90 via-teal-800/80 to-slate-900',
+      quiz: 'from-amber-900/90 via-orange-800/80 to-slate-900',
+      portfolio: 'from-zinc-900 via-neutral-800 to-zinc-950',
+      weather: 'from-sky-900/90 via-sky-800/80 to-slate-900',
+      expense: 'from-emerald-900/90 via-emerald-800/80 to-slate-900',
     };
 
     const gradientClass = previewClasses[preview] || previewClasses.portfolio;
@@ -82,67 +135,82 @@ export function ProjectCard({ project }: ProjectCardProps) {
         href={targetDemoUrl}
         target="_blank"
         rel="noreferrer"
-        className="group/preview block rounded-xl overflow-hidden border border-border bg-tag-bg mb-3 shadow-inner hover:border-accent/40 transition-all cursor-pointer"
-        title={`คลิกเพื่อเปิดดู Demo ในแท็บใหม่: ${title}`}
+        className="group/preview block rounded-xl overflow-hidden border border-border bg-tag-bg mb-3 shadow-sm hover:border-accent/40 transition-all cursor-pointer"
+        title={`คลิกเพื่อเปิดดู Demo: ${title}`}
       >
-        {/* Full-Bleed UI Demo Mockup */}
-        <div className={`relative h-[135px] sm:h-[140px] overflow-hidden ${gradientClass}`}>
-          <div className="absolute w-40 h-40 rounded-full -right-10 -bottom-16 bg-white/10" />
-          <div className="absolute inset-x-3.5 top-3.5 bottom-0 p-3 pt-4 rounded-t-xl bg-card/95 shadow-lg group-hover/preview:scale-[1.02] transition-transform duration-200">
+        <div className={`relative h-[140px] sm:h-[155px] overflow-hidden bg-gradient-to-br ${gradientClass} flex flex-col justify-between p-3`}>
+          {/* Interactive UI Mockup Elements */}
+          <div className="relative z-10 my-auto p-2.5 rounded-lg bg-black/30 backdrop-blur-md border border-white/10 shadow-lg group-hover/preview:scale-[1.02] transition-transform duration-200">
             {preview === 'chat' && (
-              <div className="grid gap-2">
-                <div className="w-3/4 h-4 rounded-lg rounded-bl-sm bg-accent/20" />
-                <div className="w-2/3 h-4 ml-auto rounded-lg rounded-br-sm bg-indigo-500/40" />
-                <div className="w-4/5 h-4 rounded-lg rounded-bl-sm bg-accent/20" />
+              <div className="space-y-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-400" />
+                  <div className="w-2/3 h-2.5 rounded bg-indigo-400/40" />
+                </div>
+                <div className="flex items-center gap-1.5 justify-end">
+                  <div className="w-1/2 h-2.5 rounded bg-accent/60" />
+                  <span className="w-2.5 h-2.5 rounded-full bg-accent" />
+                </div>
               </div>
             )}
             {preview === 'tasks' && (
-              <div className="grid gap-2">
+              <div className="space-y-1.5">
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded bg-teal-500/60" />
-                  <span className="h-2 w-3/4 rounded bg-fg-secondary/25" />
+                  <span className="w-2.5 h-2.5 rounded bg-teal-400/80 flex items-center justify-center text-[7px] text-black">✓</span>
+                  <div className="h-2 w-3/4 rounded bg-teal-200/30" />
                 </div>
                 <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded bg-teal-500/60" />
-                  <span className="h-2 w-1/2 rounded bg-fg-secondary/25" />
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="w-3 h-3 rounded bg-teal-500/60" />
-                  <span className="h-2 w-2/3 rounded bg-fg-secondary/25" />
+                  <span className="w-2.5 h-2.5 rounded border border-teal-400/60" />
+                  <div className="h-2 w-1/2 rounded bg-teal-200/30" />
                 </div>
               </div>
             )}
             {preview === 'quiz' && (
-              <div className="grid gap-2">
-                <span className="h-2.5 w-3/4 rounded bg-fg-secondary/25" />
-                <div className="grid grid-cols-2 gap-2 mt-1">
-                  <span className="h-6 rounded border border-orange-500/40 bg-orange-500/10" />
-                  <span className="h-6 rounded border border-orange-500/40 bg-orange-500/10" />
+              <div className="space-y-1.5">
+                <div className="h-2 w-3/4 rounded bg-amber-200/40" />
+                <div className="grid grid-cols-2 gap-1.5">
+                  <span className="h-4 rounded bg-amber-500/20 border border-amber-400/30 text-[8px] text-amber-200 flex items-center px-1.5">Option A</span>
+                  <span className="h-4 rounded bg-amber-500/40 border border-amber-400/60 text-[8px] text-amber-100 flex items-center px-1.5 font-bold">Option B ✓</span>
                 </div>
               </div>
             )}
             {preview === 'portfolio' && (
-              <div className="flex flex-col items-center pt-1">
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-zinc-700 to-zinc-400 mb-1.5 shadow-sm" />
-                <span className="h-2 w-1/2 rounded bg-fg-secondary/25" />
-              </div>
-            )}
-            {preview === 'weather' && (
-              <div className="pt-1">
-                <div className="font-outfit text-2xl font-bold text-foreground leading-none">28°C</div>
-                <div className="grid gap-1.5 mt-2.5">
-                  <span className="h-2 w-1/2 rounded bg-fg-secondary/25" />
+              <div className="flex items-center gap-2.5">
+                <div className="w-7 h-7 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white text-[9px] font-bold">P.</div>
+                <div className="space-y-1 flex-1">
+                  <div className="h-2 w-2/3 rounded bg-white/40" />
+                  <div className="h-1.5 w-1/2 rounded bg-white/20" />
                 </div>
               </div>
             )}
-            {preview === 'expense' && (
-              <div className="h-16 flex gap-2 items-end pt-2">
-                <span className="flex-1 rounded-t bg-emerald-500/60 h-[40%]" />
-                <span className="flex-1 rounded-t bg-emerald-500/60 h-[75%]" />
-                <span className="flex-1 rounded-t bg-emerald-500/60 h-[55%]" />
-                <span className="flex-1 rounded-t bg-emerald-500/60 h-[90%]" />
+            {preview === 'weather' && (
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-outfit text-lg font-bold text-white leading-none">29°C</div>
+                  <div className="text-[9px] text-sky-200 mt-0.5">Partly Cloudy</div>
+                </div>
+                <div className="w-7 h-7 rounded-full bg-amber-400/80 flex items-center justify-center text-amber-950 text-xs shadow-md">☀️</div>
               </div>
             )}
+            {preview === 'expense' && (
+              <div className="h-9 flex gap-1.5 items-end">
+                <span className="flex-1 rounded-t bg-emerald-400/40 h-[35%]" />
+                <span className="flex-1 rounded-t bg-emerald-400/70 h-[70%]" />
+                <span className="flex-1 rounded-t bg-emerald-400/50 h-[50%]" />
+                <span className="flex-1 rounded-t bg-emerald-400/90 h-[90%]" />
+                <span className="flex-1 rounded-t bg-emerald-300 h-[65%]" />
+              </div>
+            )}
+          </div>
+
+          {/* Bottom Live Demo Trigger */}
+          <div className="flex items-center justify-between text-[10px] text-white/80 z-10">
+            <span className="flex items-center gap-1 font-medium text-white">
+              <Sparkles className="w-2.5 h-2.5 text-accent" /> Interactive Demo
+            </span>
+            <span className="px-1.5 py-0.5 rounded bg-white/10 hover:bg-white/20 text-white flex items-center gap-1 text-[9px] transition-colors">
+              เปิด Demo <ExternalLink className="w-2.5 h-2.5" />
+            </span>
           </div>
         </div>
       </a>
@@ -154,7 +222,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       ref={cardRef as any}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
-      className="group linear-card p-3 flex flex-col justify-between overflow-hidden"
+      className="group linear-card p-3 flex flex-col justify-between overflow-hidden hover:border-accent/40 transition-all duration-200"
     >
       {/* Subtle Silver Cursor Spotlight */}
       <div
@@ -166,7 +234,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
       />
 
       <div className="relative z-10">
-        {/* Clickable Full-Bleed Preview to Demo (Opens in New Tab) */}
+        {/* Clickable Full-Bleed Preview to Demo */}
         {renderPreview()}
 
         {/* Content Info */}

@@ -6,9 +6,9 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseAnon
 
 export const isSupabaseConfigured = Boolean(supabaseUrl && (supabaseAnonKey || supabaseServiceKey));
 
-// Client for Public / Client-side interactions (Uses Anon Key)
+// Client for Public / Server interactions (Uses Service Key or Anon Key)
 export const supabase = isSupabaseConfigured
-  ? createClient(supabaseUrl, supabaseAnonKey)
+  ? createClient(supabaseUrl, supabaseServiceKey || supabaseAnonKey)
   : null;
 
 // Admin Client for Server-side Operations (Uses Service Role Key if available)
@@ -27,7 +27,7 @@ export const supabaseAdmin = isSupabaseConfigured
 export async function uploadToSupabaseStorage(
   fileBuffer: Buffer | Uint8Array,
   fileName: string,
-  folder: 'certificates' | 'avatars' | 'line-qr' | 'projects' = 'certificates',
+  folder: 'certificates' | 'avatars' | 'line-qr' | 'projects' | 'resumes' = 'certificates',
   contentType: string = 'image/jpeg'
 ): Promise<string> {
   if (!supabaseAdmin) {

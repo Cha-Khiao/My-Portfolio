@@ -31,7 +31,7 @@ export function Navbar() {
           </Link>
 
           <div className="flex items-center gap-2">
-            <ul className="hidden md:flex items-center gap-6 mr-4 list-none">
+            <ul className="hidden md:flex items-center gap-5 mr-4 list-none">
               <li>
                 <Link
                   href={isHome ? '#about' : '/#about'}
@@ -46,6 +46,14 @@ export function Navbar() {
                   className="text-sm font-medium text-fg-secondary hover:text-foreground transition-colors"
                 >
                   Projects
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={isHome ? '#activities' : '/#activities'}
+                  className="text-sm font-medium text-fg-secondary hover:text-foreground transition-colors"
+                >
+                  Activities
                 </Link>
               </li>
               <li>
@@ -104,6 +112,13 @@ export function Navbar() {
             className="text-lg font-medium text-fg-secondary hover:text-foreground"
           >
             Projects
+          </Link>
+          <Link
+            href={isHome ? '#activities' : '/#activities'}
+            onClick={closeMenu}
+            className="text-lg font-medium text-fg-secondary hover:text-foreground"
+          >
+            Activities
           </Link>
           <Link
             href={isHome ? '#certificates' : '/#certificates'}

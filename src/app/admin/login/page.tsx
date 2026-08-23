@@ -32,8 +32,8 @@ export default function AdminLoginPage() {
         throw new Error(data.error || 'ข้อมูลการเข้าสู่ระบบไม่ถูกต้อง');
       }
 
-      router.push('/admin');
-      router.refresh();
+      // Hard redirect to ensure fresh cookies and bypass soft navigation cache
+      window.location.href = '/admin';
     } catch (err: any) {
       setError(err.message || 'ข้อมูลการเข้าสู่ระบบไม่ถูกต้อง');
     } finally {

@@ -1,6 +1,6 @@
-﻿import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { defaultCertificates, defaultProfile, defaultProjects } from '@/lib/initial-data';
+import { defaultCertificates, defaultProfile, defaultProjects, defaultActivities } from '@/lib/initial-data';
 import { isAuthenticated } from '@/lib/auth';
 
 export async function POST(req: NextRequest) {
@@ -10,13 +10,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const { target } = await req.json(); // 'profile', 'projects', 'certificates', or 'all'
+    const { target } = await req.json(); // 'profile', 'projects', 'certificates', 'activities', or 'all'
 
     if (target === 'profile' || target === 'all') {
+      const { id, ...profileData } = defaultProfile;
       await prisma.profile.upsert({
         where: { id: 'profile' },
-        update: defaultProfile,
-        create: defaultProfile,
+        update: profileData,
+        create: { id: 'profile', ...profileData },
       });
     }
 
@@ -33,6 +34,15 @@ export async function POST(req: NextRequest) {
       for (const c of defaultCertificates) {
         const { id, ...data } = c;
         await prisma.certificate.create({
+          data,
+        });
+      }
+    }
+
+    if (target === 'activities' || target === 'all') {
+      for (const a of defaultActivities) {
+        const { id, images, ...data } = a;
+        await prisma.activity.create({
           data,
         });
       }

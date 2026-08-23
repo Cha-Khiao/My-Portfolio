@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { setAdminSession, clearAdminSession, isAuthenticated, getAdminSession } from '@/lib/auth';
-import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { supabase, supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
 
 export async function GET() {
   const session = await getAdminSession();
@@ -16,7 +16,8 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'กรุณาระบุอีเมลและรหัสผ่าน' }, { status: 400 });
     }
 
-    if (!isSupabaseConfigured || !supabase) {
+    const client = supabaseAdmin || supabase;
+    if (!isSupabaseConfigured || !client) {
       return NextResponse.json(
         { error: 'Supabase ยังไม่ได้เชื่อมต่อใน Environment Variables' },
         { status: 500 }
@@ -24,14 +25,15 @@ export async function POST(req: NextRequest) {
     }
 
     // Authenticate with Supabase Auth
-    const { data, error } = await supabase.auth.signInWithPassword({
+    const { data, error } = await client.auth.signInWithPassword({
       email: email.trim(),
       password,
     });
 
     if (error || !data.session || !data.user) {
+      console.error('[Auth Error] Supabase rejected login:', error?.message || 'No session returned');
       return NextResponse.json(
-        { error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' },
+        { error: error?.message || 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' },
         { status: 401 }
       );
     }

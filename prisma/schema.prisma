@@ -1,5 +1,6 @@
 generator client {
   provider = "prisma-client-js"
+  output   = "../src/generated/client"
 }
 
 datasource db {
@@ -18,6 +19,7 @@ model Profile {
   about2              String   @default("ผมจึงมุ่งเน้นการใช้ความถนัดด้าน AI มาประยุกต์ใช้งานในหลากหลายมิติ ไม่ว่าจะเป็นการพัฒนาซอฟต์แวร์ เว็บแอปพลิเคชัน การจัดการข้อมูล หรือการแก้ปัญหาเฉพาะทาง โดยทำงานร่วมกับ AI อย่างเป็นระบบ ตั้งแต่วิเคราะห์โจทย์ ออกแบบ วางแผน ไปจนถึงทดสอบและส่งมอบผลงานที่ใช้งานได้จริง")
   projectsHeading     String   @default("Projects")
   certificatesHeading String   @default("Certificates")
+  activitiesHeading   String   @default("Activities & Experience")
   skillsHeading       String   @default("Skills & Capabilities")
   contactHeading      String   @default("Get in Touch")
   contactDesc         String   @default("ผมกำลังมองหาโอกาสในการฝึกงาน เพื่อนำทักษะด้านการประยุกต์ใช้ AI ทำงานอย่างเป็นระบบ การสร้างระบบอัตโนมัติ (GAS) และการจัดการงานดิจิทัลไปช่วยซัพพอร์ตทีม พร้อมเรียนรู้และพัฒนาตัวเองอย่างเต็มที่ หากองค์กรหรือทีมของท่านกำลังเปิดรับนักศึกษาฝึกงาน สามารถติดต่อพูดคุยกับผมได้เลยครับ")
@@ -28,6 +30,7 @@ model Profile {
   lineId              String   @default("")
   lineQrUrl           String   @default("/images/line-qr.jpg")
   phone               String   @default("064-965-9703")
+  resumeUrl           String   @default("")
   skillsJson          String   @default("")
   updatedAt           DateTime @updatedAt
 }
@@ -55,4 +58,19 @@ model Certificate {
   order     Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Activity {
+  id          String   @id @default(cuid())
+  title       String
+  role        String   @default("")
+  org         String   @default("")
+  period      String   @default("")
+  desc        String   @default("")
+  imagesJson  String   @default("[]")
+  linkUrl     String   @default("")
+  featured    Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 }

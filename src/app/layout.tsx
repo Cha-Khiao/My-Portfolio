@@ -20,8 +20,8 @@ const outfitFont = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: 'Prasopphol Talhom — Computer Science & Web Developer Portfolio',
-  description: 'Portfolio ของ Prasopphol Talhom — Computer Science Student และ Web Developer',
+  title: 'Portfolio — Prasopphol Talhom',
+  description: 'Portfolio ของ Prasopphol Talhom',
   icons: {
     icon: [{ url: '/icon.svg', type: 'image/svg+xml' }],
     apple: [{ url: '/icon.svg', type: 'image/svg+xml' }],
