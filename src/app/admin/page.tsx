@@ -883,17 +883,27 @@ export default function AdminDashboardPage() {
   }
 
   // Filtered lists
-  const filteredProjects = projects.filter((p) => {
-    const matchQuery = p.title.toLowerCase().includes(projectSearch.toLowerCase()) || p.desc.toLowerCase().includes(projectSearch.toLowerCase());
-    const matchFeatured = projectFeaturedOnly ? p.featured : true;
-    return matchQuery && matchFeatured;
-  });
+  const filteredProjects = projects
+    .filter((p) => {
+      const matchQuery = p.title.toLowerCase().includes(projectSearch.toLowerCase()) || p.desc.toLowerCase().includes(projectSearch.toLowerCase());
+      const matchFeatured = projectFeaturedOnly ? p.featured : true;
+      return matchQuery && matchFeatured;
+    })
+    .sort((a, b) => {
+      if (projectFeaturedOnly) return (a.order || 0) - (b.order || 0);
+      return 0;
+    });
 
-  const filteredCertificates = certificates.filter((c) => {
-    const matchQuery = c.name.toLowerCase().includes(certSearch.toLowerCase()) || c.org.toLowerCase().includes(certSearch.toLowerCase());
-    const matchFeatured = certFeaturedOnly ? c.featured : true;
-    return matchQuery && matchFeatured;
-  });
+  const filteredCertificates = certificates
+    .filter((c) => {
+      const matchQuery = c.name.toLowerCase().includes(certSearch.toLowerCase()) || c.org.toLowerCase().includes(certSearch.toLowerCase());
+      const matchFeatured = certFeaturedOnly ? c.featured : true;
+      return matchQuery && matchFeatured;
+    })
+    .sort((a, b) => {
+      if (certFeaturedOnly) return (a.order || 0) - (b.order || 0);
+      return 0;
+    });
 
   const extractYear = (period?: string | null) => {
     if (!period) return 0;
@@ -916,6 +926,7 @@ export default function AdminDashboardPage() {
       return matchQuery && matchFeatured;
     })
     .sort((a, b) => {
+      if (activityFeaturedOnly) return (a.order || 0) - (b.order || 0);
       const yA = extractYear(a.period);
       const yB = extractYear(b.period);
       if (yA !== yB) return yB - yA;
@@ -1195,17 +1206,38 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="projectFeatured"
-                  checked={projectForm.featured}
-                  onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
-                  className="rounded border-border text-blue-600 focus:ring-blue-500 cursor-pointer"
-                />
-                <label htmlFor="projectFeatured" className="text-xs text-foreground font-medium cursor-pointer">
-                  แสดงในหน้าแรก (Featured)
-                </label>
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="projectFeatured"
+                    checked={projectForm.featured}
+                    onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
+                    className="rounded border-border text-blue-600 focus:ring-blue-500 cursor-pointer"
+                  />
+                  <label htmlFor="projectFeatured" className="text-xs text-foreground font-medium cursor-pointer">
+                    แสดงในหน้าแรก (Featured)
+                  </label>
+                </div>
+
+                {projectForm.featured && (
+                  <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 space-y-1.5 animate-in fade-in duration-200">
+                    <label className="block text-xs font-semibold text-blue-600 dark:text-blue-400">
+                      ลำดับการแสดงในหน้าแรก (1, 2, 3...)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={projectForm.order || 1}
+                      onChange={(e) => setProjectForm({ ...projectForm, order: parseInt(e.target.value) || 1 })}
+                      placeholder="เช่น 1, 2, 3"
+                      className="w-full px-3 py-2 rounded-xl bg-background border border-border focus:border-blue-500 text-xs outline-none font-mono font-semibold"
+                    />
+                    <p className="text-[10px] text-fg-tertiary">
+                      อันดับ 1 จะแสดงอยู่ด้านหน้าสุดบนหน้าแรก
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="pt-2">
@@ -1312,8 +1344,8 @@ export default function AdminDashboardPage() {
                             #{index + 1}
                           </span>
                           {p.featured && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium">
-                              ⭐ หน้าแรก
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-medium font-mono">
+                              ⭐ หน้าแรก (อันดับ #{p.order || 1})
                             </span>
                           )}
                         </div>
@@ -1516,17 +1548,38 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="activityFeatured"
-                  checked={activityForm.featured}
-                  onChange={(e) => setActivityForm({ ...activityForm, featured: e.target.checked })}
-                  className="rounded border-border text-amber-500 focus:ring-amber-500 cursor-pointer"
-                />
-                <label htmlFor="activityFeatured" className="text-xs text-foreground font-medium cursor-pointer">
-                  แสดงในหน้าแรก (Featured)
-                </label>
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="activityFeatured"
+                    checked={activityForm.featured}
+                    onChange={(e) => setActivityForm({ ...activityForm, featured: e.target.checked })}
+                    className="rounded border-border text-amber-500 focus:ring-amber-500 cursor-pointer"
+                  />
+                  <label htmlFor="activityFeatured" className="text-xs text-foreground font-medium cursor-pointer">
+                    แสดงในหน้าแรก (Featured)
+                  </label>
+                </div>
+
+                {activityForm.featured && (
+                  <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-1.5 animate-in fade-in duration-200">
+                    <label className="block text-xs font-semibold text-amber-600 dark:text-amber-400">
+                      ลำดับการแสดงในหน้าแรก (1, 2, 3...)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={activityForm.order || 1}
+                      onChange={(e) => setActivityForm({ ...activityForm, order: parseInt(e.target.value) || 1 })}
+                      placeholder="เช่น 1, 2, 3"
+                      className="w-full px-3 py-2 rounded-xl bg-background border border-border focus:border-amber-500 text-xs outline-none font-mono font-semibold"
+                    />
+                    <p className="text-[10px] text-fg-tertiary">
+                      อันดับ 1 จะแสดงอยู่ด้านหน้าสุดบนหน้าแรก
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="pt-2">
@@ -1604,8 +1657,8 @@ export default function AdminDashboardPage() {
                             #{index + 1}
                           </span>
                           {act.featured && (
-                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium">
-                              ⭐ หน้าแรก
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-medium font-mono">
+                              ⭐ หน้าแรก (อันดับ #{act.order || 1})
                             </span>
                           )}
                           {imgCount > 0 && (
@@ -1766,17 +1819,38 @@ export default function AdminDashboardPage() {
                 )}
               </div>
 
-              <div className="flex items-center gap-2 pt-2">
-                <input
-                  type="checkbox"
-                  id="certFeatured"
-                  checked={certForm.featured}
-                  onChange={(e) => setCertForm({ ...certForm, featured: e.target.checked })}
-                  className="rounded border-border text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                />
-                <label htmlFor="certFeatured" className="text-xs text-foreground font-medium cursor-pointer">
-                  แสดงในหน้าแรก (Featured)
-                </label>
+              <div className="space-y-3 pt-1">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="certFeatured"
+                    checked={certForm.featured}
+                    onChange={(e) => setCertForm({ ...certForm, featured: e.target.checked })}
+                    className="rounded border-border text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                  />
+                  <label htmlFor="certFeatured" className="text-xs text-foreground font-medium cursor-pointer">
+                    แสดงในหน้าแรก (Featured)
+                  </label>
+                </div>
+
+                {certForm.featured && (
+                  <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-1.5 animate-in fade-in duration-200">
+                    <label className="block text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                      ลำดับการแสดงในหน้าแรก (1, 2, 3...)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={certForm.order || 1}
+                      onChange={(e) => setCertForm({ ...certForm, order: parseInt(e.target.value) || 1 })}
+                      placeholder="เช่น 1, 2, 3"
+                      className="w-full px-3 py-2 rounded-xl bg-background border border-border focus:border-emerald-500 text-xs outline-none font-mono font-semibold"
+                    />
+                    <p className="text-[10px] text-fg-tertiary">
+                      อันดับ 1 จะแสดงอยู่ด้านหน้าสุดบนหน้าแรก
+                    </p>
+                  </div>
+                )}
               </div>
 
               <div className="pt-2">
@@ -1856,8 +1930,8 @@ export default function AdminDashboardPage() {
                           #{index + 1}
                         </span>
                         {c.featured && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium">
-                            ⭐ หน้าแรก
+                          <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-medium font-mono">
+                            ⭐ หน้าแรก (อันดับ #{c.order || 1})
                           </span>
                         )}
                       </div>

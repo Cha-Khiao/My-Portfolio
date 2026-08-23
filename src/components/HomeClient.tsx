@@ -43,13 +43,27 @@ export function HomeClient({
   const [isLineModalOpen, setIsLineModalOpen] = React.useState(false);
   const [isResumeModalOpen, setIsResumeModalOpen] = React.useState(false);
 
-  const featuredProjects = projects.filter((p) => p.featured).slice(0, 3);
+  const featuredProjects = React.useMemo(() => {
+    return [...projects]
+      .filter((p) => p.featured)
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .slice(0, 3);
+  }, [projects]);
   const displayProjects = featuredProjects.length ? featuredProjects : projects.slice(0, 3);
 
-  const featuredCerts = certificates.filter((c) => c.featured).slice(0, 3);
+  const featuredCerts = React.useMemo(() => {
+    return [...certificates]
+      .filter((c) => c.featured)
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+      .slice(0, 3);
+  }, [certificates]);
   const displayCerts = featuredCerts.length ? featuredCerts : certificates.slice(0, 3);
 
-  const featuredActivities = activities.filter((a) => a.featured);
+  const featuredActivities = React.useMemo(() => {
+    return [...activities]
+      .filter((a) => a.featured)
+      .sort((a, b) => (a.order || 0) - (b.order || 0));
+  }, [activities]);
   const displayActivities = featuredActivities.length ? featuredActivities : activities;
 
   const emailAddress = profile.email || defaultProfile.email;
