@@ -51,7 +51,7 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ id: 
 
   try {
     const { id } = await context.params;
-    await prisma.project.delete({
+    await prisma.project.deleteMany({
       where: { id },
     });
     revalidatePath('/');

@@ -12,9 +12,6 @@ export async function GET() {
     const activities = await prisma.activity.findMany({
       orderBy: { order: 'asc' },
     });
-    if (activities.length === 0) {
-      return NextResponse.json(defaultActivities);
-    }
     const parsed = activities.map((a) => {
       let images: string[] = [];
       try {

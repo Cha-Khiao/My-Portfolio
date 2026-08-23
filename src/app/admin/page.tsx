@@ -514,6 +514,7 @@ export default function AdminDashboardPage() {
   const handleDeleteProject = async (id: string, title: string) => {
     if (!confirm(`ยืนยันการลบโปรเจกต์ "${title}" หรือไม่?`)) return;
     try {
+      setProjects((prev) => prev.filter((p) => p.id !== id));
       const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete project');
       showStatus('ลบโปรเจกต์เรียบร้อยแล้ว');
@@ -612,6 +613,7 @@ export default function AdminDashboardPage() {
   const handleDeleteCertificate = async (id: string, name: string) => {
     if (!confirm(`ยืนยันการลบใบรับรอง "${name}" หรือไม่?`)) return;
     try {
+      setCertificates((prev) => prev.filter((c) => c.id !== id));
       const res = await fetch(`/api/certificates/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete certificate');
       showStatus('ลบใบรับรองเรียบร้อยแล้ว');
@@ -728,6 +730,7 @@ export default function AdminDashboardPage() {
   const handleDeleteActivity = async (id: string, title: string) => {
     if (!confirm(`ยืนยันการลบกิจกรรม "${title}" หรือไม่?`)) return;
     try {
+      setActivities((prev) => prev.filter((a) => a.id !== id));
       const res = await fetch(`/api/activities/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete activity');
       showStatus('ลบกิจกรรมเรียบร้อยแล้ว');
