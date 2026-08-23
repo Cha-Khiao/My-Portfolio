@@ -7,99 +7,168 @@ import { Clock, RefreshCw, LogOut } from 'lucide-react';
 interface InactivityGuardProps {
   timeoutMinutes?: number; // Total idle timeout (default: 20 minutes)
   warningSeconds?: number; // Warning time before auto logout (default: 60 seconds)
-  children?: React.ReactNode;
+  renderTimer?: boolean;
 }
 
 export function AdminInactivityGuard({
   timeoutMinutes = 20,
   warningSeconds = 60,
-  children,
+  renderTimer = true,
 }: InactivityGuardProps) {
   const router = useRouter();
+  const totalSeconds = timeoutMinutes * 60;
+
+  const [remainingSeconds, setRemainingSeconds] = React.useState(totalSeconds);
   const [showWarning, setShowWarning] = React.useState(false);
-  const [countdown, setCountdown] = React.useState(warningSeconds);
+  const [justReset, setJustReset] = React.useState(false);
 
-  const timeoutMs = timeoutMinutes * 60 * 1000;
-  const warningMs = Math.max(1000, (timeoutMinutes * 60 - warningSeconds) * 1000);
-
-  const warningTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const logoutTimerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const countdownIntervalRef = React.useRef<NodeJS.Timeout | null>(null);
+  const lastActivityRef = React.useRef<number>(Date.now());
+  const isLoggedOutRef = React.useRef<boolean>(false);
 
   const handleLogout = React.useCallback(async () => {
+    if (isLoggedOutRef.current) return;
+    isLoggedOutRef.current = true;
     try {
       await fetch('/api/auth', { method: 'DELETE' });
     } catch (e) {
       console.warn('Auto logout fetch failed');
     }
     setShowWarning(false);
-    router.push('/admin/login');
-  }, [router]);
+    window.location.href = '/admin/login?reason=timeout';
+  }, []);
 
-  const resetTimers = React.useCallback(() => {
-    // Clear existing timers
-    if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-    if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
-    if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-
+  const resetTimer = React.useCallback(() => {
+    lastActivityRef.current = Date.now();
+    setRemainingSeconds(totalSeconds);
     setShowWarning(false);
-    setCountdown(warningSeconds);
+    setJustReset(true);
+    setTimeout(() => setJustReset(false), 1500);
+  }, [totalSeconds]);
 
-    // Set Warning Timer (Triggers countdown dialog before auto logout)
-    warningTimerRef.current = setTimeout(() => {
-      setShowWarning(true);
-      setCountdown(warningSeconds);
-
-      countdownIntervalRef.current = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    }, warningMs);
-
-    // Set Final Hard Logout Timer
-    logoutTimerRef.current = setTimeout(() => {
-      handleLogout();
-    }, timeoutMs);
-  }, [handleLogout, timeoutMs, warningMs, warningSeconds]);
-
-  // Listen to active user interactions
+  // Main countdown tick loop (checks actual elapsed time with Date.now())
   React.useEffect(() => {
-    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'];
+    const interval = setInterval(() => {
+      if (isLoggedOutRef.current) return;
+
+      const elapsedMs = Date.now() - lastActivityRef.current;
+      const elapsedSec = Math.floor(elapsedMs / 1000);
+      const left = Math.max(0, totalSeconds - elapsedSec);
+
+      setRemainingSeconds(left);
+
+      // Trigger warning dialog when under warning threshold
+      if (left <= warningSeconds && left > 0) {
+        setShowWarning(true);
+      } else if (left > warningSeconds) {
+        setShowWarning(false);
+      }
+
+      // Hard timeout reached
+      if (left <= 0) {
+        clearInterval(interval);
+        handleLogout();
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [totalSeconds, warningSeconds, handleLogout]);
+
+  // Activity listeners (auto-resets whenever user moves mouse, types, clicks, or refocuses tab)
+  React.useEffect(() => {
+    let lastThrottled = 0;
 
     const handleUserActivity = () => {
-      // If warning modal is not currently open, reset the idle timer
-      if (!showWarning) {
-        resetTimers();
+      if (isLoggedOutRef.current) return;
+      const now = Date.now();
+      // Throttle activity event processing to once every 2 seconds
+      if (now - lastThrottled > 2000) {
+        lastThrottled = now;
+        const elapsed = (now - lastActivityRef.current) / 1000;
+        // If user was away but not yet logged out, moving or focusing automatically resets the timer!
+        if (elapsed < totalSeconds) {
+          lastActivityRef.current = now;
+          setRemainingSeconds(totalSeconds);
+          setShowWarning(false);
+        }
       }
     };
 
-    events.forEach((event) => {
-      window.addEventListener(event, handleUserActivity, { passive: true });
-    });
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        const now = Date.now();
+        const elapsed = (now - lastActivityRef.current) / 1000;
+        if (elapsed >= totalSeconds) {
+          handleLogout();
+        } else {
+          // User returned before timeout expired -> restart timer automatically!
+          lastActivityRef.current = now;
+          setRemainingSeconds(totalSeconds);
+          setShowWarning(false);
+        }
+      }
+    };
 
-    // Initialize timers on mount
-    resetTimers();
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click', 'focus'];
+    events.forEach((evt) => window.addEventListener(evt, handleUserActivity, { passive: true }));
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      events.forEach((event) => {
-        window.removeEventListener(event, handleUserActivity);
-      });
-      if (warningTimerRef.current) clearTimeout(warningTimerRef.current);
-      if (logoutTimerRef.current) clearTimeout(logoutTimerRef.current);
-      if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+      events.forEach((evt) => window.removeEventListener(evt, handleUserActivity));
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [resetTimers, showWarning]);
+  }, [totalSeconds, handleLogout]);
+
+  // Format MM:SS
+  const minutes = Math.floor(remainingSeconds / 60);
+  const seconds = remainingSeconds % 60;
+  const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+  // Visual status classes based on remaining time
+  const isUrgent = remainingSeconds <= warningSeconds;
+  const isWarning = remainingSeconds <= 300 && !isUrgent; // <= 5 min
+
+  let badgeColor = 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/25 hover:border-emerald-500/40';
+  let dotColor = 'bg-emerald-500';
+
+  if (isUrgent) {
+    badgeColor = 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/40 animate-pulse';
+    dotColor = 'bg-rose-500';
+  } else if (isWarning) {
+    badgeColor = 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/30';
+    dotColor = 'bg-amber-500';
+  }
 
   return (
     <>
-      {children}
+      {renderTimer && (
+        <div
+          className={`inline-flex items-center gap-2 px-3 py-2 rounded-xl border text-xs font-medium transition-all shadow-sm ${badgeColor}`}
+          title="เซสชันผู้ดูแลระบบจะเริ่มนับเวลาใหม่ทันทีเมื่อมีการขยับหรือกลับเข้ามาที่หน้าเว็บ (หรือกดไอคอนรีเฟรชเพื่อต่อเวลาได้ทันที)"
+        >
+          <span className="relative flex h-2 w-2">
+            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${dotColor}`} />
+            <span className={`relative inline-flex rounded-full h-2 w-2 ${dotColor}`} />
+          </span>
+          <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+          <div className="flex items-center gap-1.5">
+            <span className="font-mono font-bold tracking-wider text-xs sm:text-sm">{formattedTime}</span>
+            <span className="text-[11px] opacity-80 whitespace-nowrap">
+              {justReset ? 'รีเซ็ตเวลาแล้ว!' : 'เซสชัน'}
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={resetTimer}
+            className="p-1 -mr-1 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 text-inherit transition-all active:scale-90 cursor-pointer"
+            title="กดเพื่อต่อเวลาเซสชันทันที (+20 นาที)"
+            aria-label="ต่อเวลาเซสชัน"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${justReset ? 'rotate-180 text-emerald-500' : ''} transition-transform duration-500`} />
+          </button>
+        </div>
+      )}
 
-      {/* Discreet Warning Modal before auto-logout */}
+      {/* Discreet Warning Modal when only 60s remain */}
       {showWarning && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-200">
           <div className="relative w-full max-w-sm bg-card border border-border rounded-2xl p-6 shadow-2xl space-y-4 text-center">
@@ -113,7 +182,7 @@ export function AdminInactivityGuard({
               </h3>
               <p className="text-xs text-fg-secondary mt-1.5 leading-relaxed">
                 ระบบจะออกจากระบบอัตโนมัติเพื่อความปลอดภัยใน{' '}
-                <span className="font-bold text-amber-500 font-mono text-sm">{countdown}</span> วินาที
+                <span className="font-bold text-rose-500 font-mono text-sm">{remainingSeconds}</span> วินาที
               </p>
             </div>
 
@@ -121,16 +190,16 @@ export function AdminInactivityGuard({
               <button
                 type="button"
                 onClick={handleLogout}
-                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1 shadow-md"
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1 shadow-md cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" /> ออกจากระบบ
               </button>
               <button
                 type="button"
-                onClick={() => resetTimers()}
-                className="btn-primary flex-1 py-2.5 text-xs font-semibold shadow-md flex items-center justify-center gap-1.5"
+                onClick={resetTimer}
+                className="btn-primary flex-1 py-2.5 text-xs font-semibold shadow-md flex items-center justify-center gap-1.5 cursor-pointer"
               >
-                <RefreshCw className="w-3.5 h-3.5" /> ใช้งานต่อ
+                <RefreshCw className="w-3.5 h-3.5" /> ใช้งานต่อ (+20 นาที)
               </button>
             </div>
           </div>
@@ -139,3 +208,4 @@ export function AdminInactivityGuard({
     </>
   );
 }
+

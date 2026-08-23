@@ -906,8 +906,6 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-20 pt-20 px-4 sm:px-6 md:px-8 max-w-7xl mx-auto">
-      <AdminInactivityGuard />
-
       {/* Top Header Bar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-6 border-b border-border mb-8">
         <div>
@@ -924,7 +922,10 @@ export default function AdminDashboardPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-3 self-stretch sm:self-auto justify-end">
+        <div className="flex flex-wrap items-center gap-3 self-stretch sm:self-auto justify-end">
+          {/* Live Inactivity Session Countdown & Auto-Refresh Guard */}
+          <AdminInactivityGuard timeoutMinutes={20} warningSeconds={60} />
+
           <a
             href="/"
             target="_blank"
