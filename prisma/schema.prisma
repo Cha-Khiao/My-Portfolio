@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Profile {
+  id                  String   @id @default("profile")
+  name                String   @default("Prasopphol Talhom")
+  role                String   @default("Computer Science Student")
+  tagline             String   @default("พอร์ตโฟลิโอรวบรวมผลงานและโปรเจกต์ต่างๆ แม้ไม่ได้เชี่ยวชาญการเขียนโค้ดหรือภาษาอังกฤษ แต่ถนัดการใช้ AI มาช่วยคิด วิเคราะห์ แก้ปัญหา และสร้างสรรค์ผลงานจริงในหลากหลายด้าน")
+  aboutHeading        String   @default("About Me")
+  about1              String   @default("ผมเป็นนักศึกษาวิทยาการคอมพิวเตอร์ที่สร้างเว็บไซต์นี้ขึ้นมาเพื่อเป็นพอร์ตโฟลิโอรวบรวมผลงานและโปรเจกต์ต่างๆ ผมอาจไม่ได้เป็นคนที่เก่งภาษาอังกฤษหรือเชี่ยวชาญด้านการเขียนโค้ดด้วยตัวเองตั้งแต่เริ่มต้น แต่ผมมองว่า AI คือเครื่องมือและพาร์ทเนอร์ที่ทรงพลังในการก้าวข้ามข้อจำกัดเหล่านั้น")
+  about2              String   @default("ผมจึงมุ่งเน้นการใช้ความถนัดด้าน AI มาประยุกต์ใช้งานในหลากหลายมิติ ไม่ว่าจะเป็นการพัฒนาซอฟต์แวร์ เว็บแอปพลิเคชัน การจัดการข้อมูล หรือการแก้ปัญหาเฉพาะทาง โดยทำงานร่วมกับ AI อย่างเป็นระบบ ตั้งแต่วิเคราะห์โจทย์ ออกแบบ วางแผน ไปจนถึงทดสอบและส่งมอบผลงานที่ใช้งานได้จริง")
+  projectsHeading     String   @default("Projects")
+  certificatesHeading String   @default("Certificates")
+  skillsHeading       String   @default("Skills & Capabilities")
+  contactHeading      String   @default("Get in Touch")
+  contactDesc         String   @default("ผมกำลังมองหาโอกาสในการฝึกงาน เพื่อนำทักษะด้านการประยุกต์ใช้ AI ทำงานอย่างเป็นระบบ การสร้างระบบอัตโนมัติ (GAS) และการจัดการงานดิจิทัลไปช่วยซัพพอร์ตทีม พร้อมเรียนรู้และพัฒนาตัวเองอย่างเต็มที่ หากองค์กรหรือทีมของท่านกำลังเปิดรับนักศึกษาฝึกงาน สามารถติดต่อพูดคุยกับผมได้เลยครับ")
+  imageUrl            String   @default("https://github.com/Cha-Khiao.png")
+  email               String   @default("kingdomdemon703@gmail.com")
+  githubUrl           String   @default("https://github.com/Cha-Khiao")
+  lineUrl             String   @default("https://line.me/ti/p/swWxGS9q9y")
+  lineId              String   @default("")
+  lineQrUrl           String   @default("/images/line-qr.jpg")
+  phone               String   @default("064-965-9703")
+  skillsJson          String   @default("")
+  updatedAt           DateTime @updatedAt
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  title       String
+  desc        String
+  preview     String   @default("portfolio")
+  githubUrl   String   @default("")
+  demoUrl     String   @default("")
+  featured    Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Certificate {
+  id        String   @id @default(cuid())
+  name      String
+  org       String
+  color     String   @default("#4F46E5")
+  imageUrl  String   @default("")
+  featured  Boolean  @default(false)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
