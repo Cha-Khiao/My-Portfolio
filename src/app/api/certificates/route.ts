@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { defaultCertificates } from '@/lib/initial-data';
 import { isAuthenticated } from '@/lib/auth';
@@ -39,6 +40,8 @@ export async function POST(req: NextRequest) {
         order: Number(data.order) || 0,
       },
     });
+    revalidatePath('/');
+    revalidatePath('/certificates');
     return NextResponse.json(cert);
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Error creating certificate' }, { status: 500 });

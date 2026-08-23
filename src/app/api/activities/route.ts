@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { defaultActivities } from '@/lib/initial-data';
 import { isAuthenticated } from '@/lib/auth';
@@ -66,6 +67,8 @@ export async function POST(req: NextRequest) {
       if (activity.imagesJson) images = JSON.parse(activity.imagesJson);
     } catch (e) {}
 
+    revalidatePath('/');
+    revalidatePath('/activities');
     return NextResponse.json({ ...activity, images });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Error creating activity' }, { status: 500 });

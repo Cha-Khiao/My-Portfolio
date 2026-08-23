@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { isAuthenticated } from '@/lib/auth';
 
@@ -55,6 +56,8 @@ export async function PUT(req: NextRequest, context: { params: Promise<{ id: str
       if (updated.imagesJson) images = JSON.parse(updated.imagesJson);
     } catch (e) {}
 
+    revalidatePath('/');
+    revalidatePath('/activities');
     return NextResponse.json({ ...updated, images });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Error updating activity' }, { status: 500 });
@@ -72,6 +75,8 @@ export async function DELETE(req: NextRequest, context: { params: Promise<{ id: 
     await prisma.activity.delete({
       where: { id },
     });
+    revalidatePath('/');
+    revalidatePath('/activities');
     return NextResponse.json({ success: true, message: 'Deleted successfully' });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Error deleting activity' }, { status: 500 });

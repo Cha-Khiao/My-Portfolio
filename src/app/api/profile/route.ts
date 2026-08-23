@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { defaultProfile } from '@/lib/initial-data';
 import { isAuthenticated } from '@/lib/auth';
@@ -75,6 +76,8 @@ export async function PUT(req: NextRequest) {
         skillsJson: data.skillsJson || defaultProfile.skillsJson,
       },
     });
+
+    revalidatePath('/');
     return NextResponse.json(updated);
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Error updating profile' }, { status: 500 });

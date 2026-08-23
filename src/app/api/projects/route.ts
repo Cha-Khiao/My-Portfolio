@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 import { prisma } from '@/lib/prisma';
 import { defaultProjects } from '@/lib/initial-data';
 import { isAuthenticated } from '@/lib/auth';
@@ -40,6 +41,8 @@ export async function POST(req: NextRequest) {
         order: Number(data.order) || 0,
       },
     });
+    revalidatePath('/');
+    revalidatePath('/projects');
     return NextResponse.json(project);
   } catch (err: any) {
     return NextResponse.json({ error: err.message || 'Error creating project' }, { status: 500 });
