@@ -1,10 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { setAdminSession, clearAdminSession, isAuthenticated, getAdminSession } from '@/lib/auth';
+import { setAdminSession, clearAdminSession, getAdminSession, refreshAdminSession } from '@/lib/auth';
 import { supabase, supabaseAdmin, isSupabaseConfigured } from '@/lib/supabase';
 
 export async function GET() {
   const session = await getAdminSession();
+  if (!session.authenticated) {
+    return NextResponse.json({ authenticated: false }, { status: 401 });
+  }
   return NextResponse.json(session);
+}
+
+export async function PUT() {
+  const session = await refreshAdminSession();
+  if (!session.authenticated) {
+    return NextResponse.json({ authenticated: false, error: 'Session expired' }, { status: 401 });
+  }
+  return NextResponse.json({ authenticated: true, email: session.email, message: 'Session refreshed' });
 }
 
 export async function POST(req: NextRequest) {
@@ -47,8 +58,8 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Save Supabase access token in secure HttpOnly cookie
-    await setAdminSession(data.session.access_token);
+    // Save Supabase access token & refresh token in secure HttpOnly cookies
+    await setAdminSession(data.session.access_token, data.session.refresh_token);
 
     return NextResponse.json({
       success: true,

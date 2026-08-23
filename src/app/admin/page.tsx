@@ -157,6 +157,19 @@ export default function AdminDashboardPage() {
     setTimeout(() => setStatusMessage(null), 4000);
   };
 
+  // Global authenticated API fetch wrapper with automatic 401 expiration handling
+  const adminFetch = React.useCallback(async (input: RequestInfo | URL, init?: RequestInit) => {
+    const res = await fetch(input, init);
+    if (res.status === 401) {
+      showStatus('เซสชันบนเซิร์ฟเวอร์หมดอายุ กำลังนำคุณกลับไปหน้าเข้าสู่ระบบ...', 'error');
+      setTimeout(() => {
+        window.location.href = '/admin/login?reason=expired';
+      }, 1200);
+      throw new Error('เซสชันหมดอายุ กรุณาเข้าสู่ระบบใหม่');
+    }
+    return res;
+  }, []);
+
   // 1. Check Auth & Load Data
   const loadAllData = async () => {
     try {
@@ -318,9 +331,18 @@ export default function AdminDashboardPage() {
     const baseScale = cropBoxSize / minDim;
     const totalScale = baseScale * cropZoom;
 
+    const drawnWidth = img.naturalWidth * totalScale;
+    const drawnHeight = img.naturalHeight * totalScale;
+
+    const imageCenterCanvasX = 128 + cropPosition.x;
+    const imageCenterCanvasY = 128 + cropPosition.y;
+
+    const imgLeftInCrop = imageCenterCanvasX - drawnWidth / 2;
+    const imgTopInCrop = imageCenterCanvasY - drawnHeight / 2;
+
+    const sourceX = Math.max(0, -imgLeftInCrop / totalScale);
+    const sourceY = Math.max(0, -imgTopInCrop / totalScale);
     const sourceSize = cropBoxSize / totalScale;
-    const sourceX = ((img.naturalWidth * totalScale - cropBoxSize) / 2 - cropPosition.x) / totalScale;
-    const sourceY = ((img.naturalHeight * totalScale - cropBoxSize) / 2 - cropPosition.y) / totalScale;
 
     ctx.fillStyle = '#FFFFFF';
     ctx.fillRect(0, 0, outputSize, outputSize);
@@ -345,7 +367,7 @@ export default function AdminDashboardPage() {
         formData.append('file', blob, 'avatar.png');
         formData.append('folder', 'avatars');
 
-        const uploadRes = await fetch('/api/upload', {
+        const uploadRes = await adminFetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
@@ -369,7 +391,7 @@ export default function AdminDashboardPage() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'line-qr');
-      const res = await fetch('/api/upload', {
+      const res = await adminFetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -395,7 +417,7 @@ export default function AdminDashboardPage() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'resumes');
-      const res = await fetch('/api/upload', {
+      const res = await adminFetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -405,7 +427,7 @@ export default function AdminDashboardPage() {
       const updated = { ...profile, resumeUrl: data.url };
       setProfile(updated);
 
-      const saveRes = await fetch('/api/profile', {
+      const saveRes = await adminFetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -429,7 +451,7 @@ export default function AdminDashboardPage() {
     const updated = { ...profile, resumeUrl: '' };
     setProfile(updated);
     try {
-      const saveRes = await fetch('/api/profile', {
+      const saveRes = await adminFetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -453,7 +475,7 @@ export default function AdminDashboardPage() {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('folder', 'projects');
-      const res = await fetch('/api/upload', {
+      const res = await adminFetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -472,7 +494,7 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     try {
       if (editingProjectId) {
-        const res = await fetch(`/api/projects/${editingProjectId}`, {
+        const res = await adminFetch(`/api/projects/${editingProjectId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(projectForm),
@@ -480,7 +502,7 @@ export default function AdminDashboardPage() {
         if (!res.ok) throw new Error('Failed to update project');
         showStatus('อัปเดตโปรเจกต์เรียบร้อยแล้ว');
       } else {
-        const res = await fetch('/api/projects', {
+        const res = await adminFetch('/api/projects', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(projectForm),
@@ -515,7 +537,7 @@ export default function AdminDashboardPage() {
     if (!confirm(`ยืนยันการลบโปรเจกต์ "${title}" หรือไม่?`)) return;
     try {
       setProjects((prev) => prev.filter((p) => p.id !== id));
-      const res = await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+      const res = await adminFetch(`/api/projects/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete project');
       showStatus('ลบโปรเจกต์เรียบร้อยแล้ว');
       const updatedProjects = await fetch('/api/projects').then((r) => r.json());
@@ -550,7 +572,7 @@ export default function AdminDashboardPage() {
       formData.append('file', file);
       formData.append('folder', 'certificates');
 
-      const res = await fetch('/api/upload', {
+      const res = await adminFetch('/api/upload', {
         method: 'POST',
         body: formData,
       });
@@ -571,7 +593,7 @@ export default function AdminDashboardPage() {
     e.preventDefault();
     try {
       if (editingCertId) {
-        const res = await fetch(`/api/certificates/${editingCertId}`, {
+        const res = await adminFetch(`/api/certificates/${editingCertId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(certForm),
@@ -579,7 +601,7 @@ export default function AdminDashboardPage() {
         if (!res.ok) throw new Error('Failed to update certificate');
         showStatus('อัปเดตใบรับรองเรียบร้อยแล้ว');
       } else {
-        const res = await fetch('/api/certificates', {
+        const res = await adminFetch('/api/certificates', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(certForm),
@@ -614,7 +636,7 @@ export default function AdminDashboardPage() {
     if (!confirm(`ยืนยันการลบใบรับรอง "${name}" หรือไม่?`)) return;
     try {
       setCertificates((prev) => prev.filter((c) => c.id !== id));
-      const res = await fetch(`/api/certificates/${id}`, { method: 'DELETE' });
+      const res = await adminFetch(`/api/certificates/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete certificate');
       showStatus('ลบใบรับรองเรียบร้อยแล้ว');
       const updatedCerts = await fetch('/api/certificates').then((r) => r.json());
@@ -650,7 +672,7 @@ export default function AdminDashboardPage() {
         const formData = new FormData();
         formData.append('file', files[i]);
         formData.append('folder', 'activities');
-        const res = await fetch('/api/upload', {
+        const res = await adminFetch('/api/upload', {
           method: 'POST',
           body: formData,
         });
@@ -686,7 +708,7 @@ export default function AdminDashboardPage() {
     }
     try {
       if (editingActivityId) {
-        const res = await fetch(`/api/activities/${editingActivityId}`, {
+        const res = await adminFetch(`/api/activities/${editingActivityId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(activityForm),
@@ -694,7 +716,7 @@ export default function AdminDashboardPage() {
         if (!res.ok) throw new Error('Failed to update activity');
         showStatus('อัปเดตกิจกรรมเรียบร้อยแล้ว');
       } else {
-        const res = await fetch('/api/activities', {
+        const res = await adminFetch('/api/activities', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(activityForm),
@@ -731,7 +753,7 @@ export default function AdminDashboardPage() {
     if (!confirm(`ยืนยันการลบกิจกรรม "${title}" หรือไม่?`)) return;
     try {
       setActivities((prev) => prev.filter((a) => a.id !== id));
-      const res = await fetch(`/api/activities/${id}`, { method: 'DELETE' });
+      const res = await adminFetch(`/api/activities/${id}`, { method: 'DELETE' });
       if (!res.ok) throw new Error('Failed to delete activity');
       showStatus('ลบกิจกรรมเรียบร้อยแล้ว');
       const updatedActivities = await fetch('/api/activities').then((r) => r.json());
@@ -797,7 +819,7 @@ export default function AdminDashboardPage() {
     resetSkillForm();
 
     try {
-      const res = await fetch('/api/profile', {
+      const res = await adminFetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -829,7 +851,7 @@ export default function AdminDashboardPage() {
     setSkillsList(updatedList);
 
     try {
-      const res = await fetch('/api/profile', {
+      const res = await adminFetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -858,7 +880,7 @@ export default function AdminDashboardPage() {
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await fetch('/api/profile', {
+      const res = await adminFetch('/api/profile', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

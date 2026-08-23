@@ -12,7 +12,9 @@ function AdminLoginForm() {
   const [loading, setLoading] = React.useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
-  const isTimeout = searchParams.get('reason') === 'timeout';
+  const reason = searchParams.get('reason');
+  const isTimeout = reason === 'timeout';
+  const isExpired = reason === 'expired';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,6 +69,13 @@ function AdminLoginForm() {
           <div className="mb-4 p-3 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-medium flex items-center gap-2">
             <Clock className="w-4 h-4 flex-shrink-0" />
             <span>เซสชันหมดอายุเนื่องจากไม่มีการใช้งานนานเกิน 20 นาที กรุณาเข้าสู่ระบบใหม่อีกครั้ง</span>
+          </div>
+        )}
+
+        {isExpired && !error && (
+          <div className="mb-4 p-3 rounded-xl bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400 text-xs font-medium flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 flex-shrink-0" />
+            <span>เซสชันบนเซิร์ฟเวอร์หมดอายุ กรุณาเข้าสู่ระบบใหม่เพื่อดำเนินการต่อ</span>
           </div>
         )}
 

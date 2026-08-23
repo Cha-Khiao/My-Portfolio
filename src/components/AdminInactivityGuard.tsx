@@ -23,9 +23,10 @@ export function AdminInactivityGuard({
   const [justReset, setJustReset] = React.useState(false);
 
   const lastActivityRef = React.useRef<number>(Date.now());
+  const lastServerSyncRef = React.useRef<number>(0);
   const isLoggedOutRef = React.useRef<boolean>(false);
 
-  const handleLogout = React.useCallback(async () => {
+  const handleLogout = React.useCallback(async (reason: 'timeout' | 'expired' = 'timeout') => {
     if (isLoggedOutRef.current) return;
     isLoggedOutRef.current = true;
     try {
@@ -34,8 +35,27 @@ export function AdminInactivityGuard({
       console.warn('Auto logout fetch failed');
     }
     setShowWarning(false);
-    window.location.href = '/admin/login?reason=timeout';
+    window.location.href = `/admin/login?reason=${reason}`;
   }, []);
+
+  // Background server session refresh (sliding window)
+  const refreshServerSession = React.useCallback(async (force = false) => {
+    if (isLoggedOutRef.current) return;
+    const now = Date.now();
+    // Throttle server syncs to at most once per 60 seconds unless forced
+    if (!force && now - lastServerSyncRef.current < 60000) return;
+    lastServerSyncRef.current = now;
+
+    try {
+      const res = await fetch('/api/auth', { method: 'PUT' });
+      if (res.status === 401) {
+        // Server session expired -> Force logout and redirect immediately
+        handleLogout('expired');
+      }
+    } catch (e) {
+      // Network glitch - allow timer to continue
+    }
+  }, [handleLogout]);
 
   const resetTimer = React.useCallback(() => {
     lastActivityRef.current = Date.now();
@@ -43,10 +63,15 @@ export function AdminInactivityGuard({
     setShowWarning(false);
     setJustReset(true);
     setTimeout(() => setJustReset(false), 1500);
-  }, [totalSeconds]);
+    // Explicitly extend server session
+    refreshServerSession(true);
+  }, [totalSeconds, refreshServerSession]);
 
   // Main countdown tick loop (checks actual elapsed time with Date.now())
   React.useEffect(() => {
+    // Initial server session refresh on mount
+    refreshServerSession(true);
+
     const interval = setInterval(() => {
       if (isLoggedOutRef.current) return;
 
@@ -66,12 +91,12 @@ export function AdminInactivityGuard({
       // Hard timeout reached
       if (left <= 0) {
         clearInterval(interval);
-        handleLogout();
+        handleLogout('timeout');
       }
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [totalSeconds, warningSeconds, handleLogout]);
+  }, [totalSeconds, warningSeconds, handleLogout, refreshServerSession]);
 
   // Activity listeners (auto-resets whenever user moves mouse, types, clicks, or refocuses tab)
   React.useEffect(() => {
@@ -84,11 +109,12 @@ export function AdminInactivityGuard({
       if (now - lastThrottled > 2000) {
         lastThrottled = now;
         const elapsed = (now - lastActivityRef.current) / 1000;
-        // If user was away but not yet logged out, moving or focusing automatically resets the timer!
+        // If user was away but not yet logged out, moving or focusing automatically resets the timer and extends server session!
         if (elapsed < totalSeconds) {
           lastActivityRef.current = now;
           setRemainingSeconds(totalSeconds);
           setShowWarning(false);
+          refreshServerSession(false);
         }
       }
     };
@@ -98,12 +124,13 @@ export function AdminInactivityGuard({
         const now = Date.now();
         const elapsed = (now - lastActivityRef.current) / 1000;
         if (elapsed >= totalSeconds) {
-          handleLogout();
+          handleLogout('timeout');
         } else {
-          // User returned before timeout expired -> restart timer automatically!
+          // User returned before timeout expired -> restart timer and refresh server session immediately!
           lastActivityRef.current = now;
           setRemainingSeconds(totalSeconds);
           setShowWarning(false);
+          refreshServerSession(true);
         }
       }
     };
@@ -116,7 +143,7 @@ export function AdminInactivityGuard({
       events.forEach((evt) => window.removeEventListener(evt, handleUserActivity));
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [totalSeconds, handleLogout]);
+  }, [totalSeconds, handleLogout, refreshServerSession]);
 
   // Format MM:SS
   const minutes = Math.floor(remainingSeconds / 60);
@@ -189,7 +216,7 @@ export function AdminInactivityGuard({
             <div className="pt-2 flex gap-2">
               <button
                 type="button"
-                onClick={handleLogout}
+                onClick={() => handleLogout('timeout')}
                 className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white text-xs font-semibold transition-colors flex items-center justify-center gap-1 shadow-md cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" /> ออกจากระบบ
