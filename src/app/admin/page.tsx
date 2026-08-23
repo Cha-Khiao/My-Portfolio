@@ -8,7 +8,6 @@ import {
   Trash2,
   Edit2,
   RefreshCw,
-  Eye,
   User,
   Layers,
   Award,
@@ -929,7 +928,7 @@ export default function AdminDashboardPage() {
             rel="noreferrer"
             className="btn-secondary px-4 py-2 text-xs sm:text-sm font-medium gap-1.5 shadow-sm whitespace-nowrap"
           >
-            <Eye className="w-4 h-4" /> ดูหน้าเว็บจริง
+            <ExternalLink className="w-4 h-4" /> ดูหน้าเว็บจริง
           </a>
           <button
             type="button"
@@ -1876,14 +1875,6 @@ export default function AdminDashboardPage() {
                   </div>
 
                   <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => setPreviewCertInAdmin(c)}
-                      className="p-2 rounded-xl text-emerald-600 hover:bg-emerald-500/10 transition-colors cursor-pointer"
-                      title="ดูตัวอย่าง"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </button>
                     <button
                       type="button"
                       onClick={() => handleEditCertificate(c)}
