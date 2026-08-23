@@ -116,5 +116,3 @@ npm run dev
 ## 📄 ลิขสิทธิ์ (License)
 
 โปรเจกต์นี้เผยแพร่ภายใต้สัญญาอนุญาต **[MIT License](LICENSE)**
-#   M y - P o r t f o l i o  
- 
