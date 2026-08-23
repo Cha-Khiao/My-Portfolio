@@ -1206,35 +1206,47 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              <div className="space-y-3 pt-1">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="projectFeatured"
-                    checked={projectForm.featured}
-                    onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
-                    className="rounded border-border text-blue-600 focus:ring-blue-500 cursor-pointer"
-                  />
-                  <label htmlFor="projectFeatured" className="text-xs text-foreground font-medium cursor-pointer">
-                    แสดงในหน้าแรก (Featured)
-                  </label>
+              <div className="p-3.5 rounded-xl bg-card border border-border space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="projectFeatured"
+                      checked={projectForm.featured}
+                      onChange={(e) => setProjectForm({ ...projectForm, featured: e.target.checked })}
+                      className="w-4 h-4 rounded border-border text-blue-600 focus:ring-blue-500 cursor-pointer"
+                    />
+                    <label htmlFor="projectFeatured" className="text-xs text-foreground font-semibold cursor-pointer">
+                      ⭐ แสดงในหน้าแรก (Featured)
+                    </label>
+                  </div>
+                  {projectForm.featured && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-500/10 text-blue-600 dark:text-blue-400 font-semibold font-mono">
+                      อันดับ #{projectForm.order || 1}
+                    </span>
+                  )}
                 </div>
 
                 {projectForm.featured && (
-                  <div className="p-3 rounded-xl bg-blue-500/5 border border-blue-500/20 space-y-1.5 animate-in fade-in duration-200">
-                    <label className="block text-xs font-semibold text-blue-600 dark:text-blue-400">
-                      ลำดับการแสดงในหน้าแรก (1, 2, 3...)
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={projectForm.order || 1}
-                      onChange={(e) => setProjectForm({ ...projectForm, order: parseInt(e.target.value) || 1 })}
-                      placeholder="เช่น 1, 2, 3"
-                      className="w-full px-3 py-2 rounded-xl bg-background border border-border focus:border-blue-500 text-xs outline-none font-mono font-semibold"
-                    />
+                  <div className="pt-2.5 border-t border-border/60 space-y-1.5 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="text-xs font-semibold text-blue-600 dark:text-blue-400">
+                        ลำดับที่แสดงในหน้าแรก:
+                      </label>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          min="1"
+                          max="20"
+                          value={projectForm.order || 1}
+                          onChange={(e) => setProjectForm({ ...projectForm, order: Math.max(1, parseInt(e.target.value) || 1) })}
+                          className="w-20 px-2.5 py-1 rounded-lg bg-background border border-border focus:border-blue-500 text-xs text-center font-mono font-bold outline-none"
+                        />
+                        <span className="text-[11px] text-fg-tertiary font-medium">ลำดับที่</span>
+                      </div>
+                    </div>
                     <p className="text-[10px] text-fg-tertiary">
-                      อันดับ 1 จะแสดงอยู่ด้านหน้าสุดบนหน้าแรก
+                      💡 อันดับ 1 จะแสดงอยู่หน้าสุดบนหน้าแรก (1, 2, 3...)
                     </p>
                   </div>
                 )}
@@ -1548,35 +1560,47 @@ export default function AdminDashboardPage() {
                 />
               </div>
 
-              <div className="space-y-3 pt-1">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="activityFeatured"
-                    checked={activityForm.featured}
-                    onChange={(e) => setActivityForm({ ...activityForm, featured: e.target.checked })}
-                    className="rounded border-border text-amber-500 focus:ring-amber-500 cursor-pointer"
-                  />
-                  <label htmlFor="activityFeatured" className="text-xs text-foreground font-medium cursor-pointer">
-                    แสดงในหน้าแรก (Featured)
-                  </label>
+              <div className="p-3.5 rounded-xl bg-card border border-border space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="activityFeatured"
+                      checked={activityForm.featured}
+                      onChange={(e) => setActivityForm({ ...activityForm, featured: e.target.checked })}
+                      className="w-4 h-4 rounded border-border text-amber-500 focus:ring-amber-500 cursor-pointer"
+                    />
+                    <label htmlFor="activityFeatured" className="text-xs text-foreground font-semibold cursor-pointer">
+                      ⭐ แสดงในหน้าแรก (Featured)
+                    </label>
+                  </div>
+                  {activityForm.featured && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 font-semibold font-mono">
+                      อันดับ #{activityForm.order || 1}
+                    </span>
+                  )}
                 </div>
 
                 {activityForm.featured && (
-                  <div className="p-3 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-1.5 animate-in fade-in duration-200">
-                    <label className="block text-xs font-semibold text-amber-600 dark:text-amber-400">
-                      ลำดับการแสดงในหน้าแรก (1, 2, 3...)
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={activityForm.order || 1}
-                      onChange={(e) => setActivityForm({ ...activityForm, order: parseInt(e.target.value) || 1 })}
-                      placeholder="เช่น 1, 2, 3"
-                      className="w-full px-3 py-2 rounded-xl bg-background border border-border focus:border-amber-500 text-xs outline-none font-mono font-semibold"
-                    />
+                  <div className="pt-2.5 border-t border-border/60 space-y-1.5 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="text-xs font-semibold text-amber-600 dark:text-amber-400">
+                        ลำดับที่แสดงในหน้าแรก:
+                      </label>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          min="1"
+                          max="20"
+                          value={activityForm.order || 1}
+                          onChange={(e) => setActivityForm({ ...activityForm, order: Math.max(1, parseInt(e.target.value) || 1) })}
+                          className="w-20 px-2.5 py-1 rounded-lg bg-background border border-border focus:border-amber-500 text-xs text-center font-mono font-bold outline-none"
+                        />
+                        <span className="text-[11px] text-fg-tertiary font-medium">ลำดับที่</span>
+                      </div>
+                    </div>
                     <p className="text-[10px] text-fg-tertiary">
-                      อันดับ 1 จะแสดงอยู่ด้านหน้าสุดบนหน้าแรก
+                      💡 อันดับ 1 จะแสดงอยู่หน้าสุดบนหน้าแรก (1, 2, 3...)
                     </p>
                   </div>
                 )}
@@ -1819,35 +1843,47 @@ export default function AdminDashboardPage() {
                 )}
               </div>
 
-              <div className="space-y-3 pt-1">
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="certFeatured"
-                    checked={certForm.featured}
-                    onChange={(e) => setCertForm({ ...certForm, featured: e.target.checked })}
-                    className="rounded border-border text-emerald-600 focus:ring-emerald-500 cursor-pointer"
-                  />
-                  <label htmlFor="certFeatured" className="text-xs text-foreground font-medium cursor-pointer">
-                    แสดงในหน้าแรก (Featured)
-                  </label>
+              <div className="p-3.5 rounded-xl bg-card border border-border space-y-2.5">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="certFeatured"
+                      checked={certForm.featured}
+                      onChange={(e) => setCertForm({ ...certForm, featured: e.target.checked })}
+                      className="w-4 h-4 rounded border-border text-emerald-600 focus:ring-emerald-500 cursor-pointer"
+                    />
+                    <label htmlFor="certFeatured" className="text-xs text-foreground font-semibold cursor-pointer">
+                      ⭐ แสดงในหน้าแรก (Featured)
+                    </label>
+                  </div>
+                  {certForm.featured && (
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold font-mono">
+                      อันดับ #{certForm.order || 1}
+                    </span>
+                  )}
                 </div>
 
                 {certForm.featured && (
-                  <div className="p-3 rounded-xl bg-emerald-500/5 border border-emerald-500/20 space-y-1.5 animate-in fade-in duration-200">
-                    <label className="block text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                      ลำดับการแสดงในหน้าแรก (1, 2, 3...)
-                    </label>
-                    <input
-                      type="number"
-                      min="1"
-                      value={certForm.order || 1}
-                      onChange={(e) => setCertForm({ ...certForm, order: parseInt(e.target.value) || 1 })}
-                      placeholder="เช่น 1, 2, 3"
-                      className="w-full px-3 py-2 rounded-xl bg-background border border-border focus:border-emerald-500 text-xs outline-none font-mono font-semibold"
-                    />
+                  <div className="pt-2.5 border-t border-border/60 space-y-1.5 animate-in fade-in duration-200">
+                    <div className="flex items-center justify-between gap-2">
+                      <label className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                        ลำดับที่แสดงในหน้าแรก:
+                      </label>
+                      <div className="flex items-center gap-1.5">
+                        <input
+                          type="number"
+                          min="1"
+                          max="20"
+                          value={certForm.order || 1}
+                          onChange={(e) => setCertForm({ ...certForm, order: Math.max(1, parseInt(e.target.value) || 1) })}
+                          className="w-20 px-2.5 py-1 rounded-lg bg-background border border-border focus:border-emerald-500 text-xs text-center font-mono font-bold outline-none"
+                        />
+                        <span className="text-[11px] text-fg-tertiary font-medium">ลำดับที่</span>
+                      </div>
+                    </div>
                     <p className="text-[10px] text-fg-tertiary">
-                      อันดับ 1 จะแสดงอยู่ด้านหน้าสุดบนหน้าแรก
+                      💡 อันดับ 1 จะแสดงอยู่หน้าสุดบนหน้าแรก (1, 2, 3...)
                     </p>
                   </div>
                 )}
