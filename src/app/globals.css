@@ -1,0 +1,444 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --bg: #F8F9FA;
+  --bg-card: #FFFFFF;
+  --fg: #111827;
+  --fg-secondary: #4B5563;
+  --fg-tertiary: #6B7280;
+  --border: #E5E7EB;
+  --border-hover: #D1D5DB;
+  --accent: #4F46E5;
+  --accent-hover: #4338CA;
+  --accent-subtle: #EEF2FF;
+  --tag-bg: #F3F4F6;
+  --tag-border: #E5E7EB;
+}
+
+[data-theme="dark"] {
+  --bg: #121318;
+  --bg-card: #1B1D24;
+  --fg: #F3F4F6;
+  --fg-secondary: #A1A7B5;
+  --fg-tertiary: #717786;
+  --border: #2A2D37;
+  --border-hover: #3E4352;
+  --accent: #6366F1;
+  --accent-hover: #818CF8;
+  --accent-subtle: #1E1F2E;
+  --tag-bg: #22242E;
+  --tag-border: #303442;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-prompt), sans-serif;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+}
+
+.font-outfit {
+  font-family: var(--font-outfit), sans-serif;
+}
+
+/* Subtle dot grid pattern */
+.bg-grid-pattern {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+[data-theme="light"] .bg-grid-pattern {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.04) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* Elevated Card Styles */
+.linear-card {
+  position: relative;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 1rem;
+  box-shadow: 0 4px 16px -2px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .linear-card {
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35), 0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.linear-card:hover {
+  border-color: var(--border-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 30px -6px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="dark"] .linear-card:hover {
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.5), 0 1px 0 rgba(255, 255, 255, 0.08) inset;
+}
+
+/* ========================================================================= */
+/* High-Dimension Tactile Buttons */
+/* ========================================================================= */
+
+/* 1. Primary Solid Vibrant Gradient Button (Royal Indigo - For Projects) */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #4F46E5 0%, #4338CA 100%);
+  color: #FFFFFF !important;
+  font-weight: 600;
+  border: 1px solid #4338CA;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 2px 8px rgba(79, 70, 229, 0.28);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .btn-primary {
+  background: linear-gradient(180deg, #6366F1 0%, #4F46E5 100%);
+  border: 1px solid #6366F1;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 4px 16px rgba(99, 102, 241, 0.35);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1.5px);
+  filter: brightness(1.06);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 6px 20px rgba(79, 70, 229, 0.35);
+}
+
+[data-theme="dark"] .btn-primary:hover {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 8px 24px rgba(99, 102, 241, 0.5);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+/* 2. Certificates Button (Royal Violet / Purple - Dedicated for Certificates) */
+.btn-cert {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #7C3AED 0%, #6D28D9 100%);
+  color: #FFFFFF !important;
+  font-weight: 600;
+  border: 1px solid #6D28D9;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 2px 8px rgba(124, 58, 237, 0.3);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .btn-cert {
+  background: linear-gradient(180deg, #8B5CF6 0%, #7C3AED 100%);
+  border: 1px solid #A78BFA;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 4px 16px rgba(139, 92, 246, 0.4);
+}
+
+.btn-cert:hover {
+  transform: translateY(-1.5px);
+  filter: brightness(1.06);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+
+[data-theme="dark"] .btn-cert:hover {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 8px 24px rgba(139, 92, 246, 0.6);
+}
+
+.btn-cert:active {
+  transform: translateY(0);
+}
+
+/* 3. Orange Tactile Button (Tangelo Orange - For Back/Return Actions) */
+.btn-orange {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #F97316 0%, #EA580C 100%);
+  color: #FFFFFF !important;
+  font-weight: 600;
+  border: 1px solid #EA580C;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 2px 8px rgba(249, 115, 22, 0.35);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .btn-orange {
+  background: linear-gradient(180deg, #FB923C 0%, #EA580C 100%);
+  border: 1px solid #FDBA74;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 4px 16px rgba(249, 115, 22, 0.45);
+}
+
+.btn-orange:hover {
+  transform: translateY(-1.5px);
+  filter: brightness(1.08);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 6px 20px rgba(249, 115, 22, 0.5);
+}
+
+[data-theme="dark"] .btn-orange:hover {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 8px 24px rgba(249, 115, 22, 0.65);
+}
+
+.btn-orange:active {
+  transform: translateY(0);
+}
+
+/* 4. Contact Solid Vibrant Gradient Button (Emerald / Jade Green) */
+.btn-contact {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #10B981 0%, #059669 100%);
+  color: #FFFFFF !important;
+  font-weight: 600;
+  border: 1px solid #059669;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 2px 8px rgba(16, 185, 129, 0.28);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .btn-contact {
+  background: linear-gradient(180deg, #10B981 0%, #047857 100%);
+  border: 1px solid #34D399;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 4px 16px rgba(16, 185, 129, 0.35);
+}
+
+.btn-contact:hover {
+  transform: translateY(-1.5px);
+  filter: brightness(1.06);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 6px 20px rgba(16, 185, 129, 0.35);
+}
+
+[data-theme="dark"] .btn-contact:hover {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 8px 24px rgba(16, 185, 129, 0.5);
+}
+
+.btn-contact:active {
+  transform: translateY(0);
+}
+
+/* 5. Phone Solid Vibrant Gradient Button (Electric Azure / Sky Blue) */
+.btn-phone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #0284C7 0%, #0369A1 100%);
+  color: #FFFFFF !important;
+  font-weight: 600;
+  border: 1px solid #0369A1;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 2px 8px rgba(2, 132, 199, 0.3);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .btn-phone {
+  background: linear-gradient(180deg, #0284C7 0%, #075985 100%);
+  border: 1px solid #38BDF8;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 4px 16px rgba(2, 132, 199, 0.4);
+}
+
+.btn-phone:hover {
+  transform: translateY(-1.5px);
+  filter: brightness(1.06);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 6px 20px rgba(2, 132, 199, 0.45);
+}
+
+[data-theme="dark"] .btn-phone:hover {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 8px 24px rgba(2, 132, 199, 0.6);
+}
+
+.btn-phone:active {
+  transform: translateY(0);
+}
+
+/* 6. LINE Official Brand Button (Vibrant LINE Green) */
+.btn-line {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #06C755 0%, #05B34C 100%);
+  color: #FFFFFF !important;
+  font-weight: 600;
+  border: 1px solid #05B34C;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.25) inset, 0 2px 8px rgba(6, 199, 85, 0.3);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .btn-line {
+  background: linear-gradient(180deg, #06C755 0%, #049640 100%);
+  border: 1px solid #28DF75;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.2) inset, 0 4px 16px rgba(6, 199, 85, 0.4);
+}
+
+.btn-line:hover {
+  transform: translateY(-1.5px);
+  filter: brightness(1.06);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 6px 20px rgba(6, 199, 85, 0.45);
+}
+
+[data-theme="dark"] .btn-line:hover {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 8px 24px rgba(6, 199, 85, 0.6);
+}
+
+.btn-line:active {
+  transform: translateY(0);
+}
+
+/* 7. GitHub Brand Button (Dark Slate / Obsidian) */
+.btn-github {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #24292F 0%, #181B1F 100%);
+  color: #FFFFFF !important;
+  font-weight: 600;
+  border: 1px solid #333842;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .btn-github {
+  background: linear-gradient(180deg, #2D333B 0%, #20252C 100%);
+  border: 1px solid #444C56;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.btn-github:hover {
+  background: linear-gradient(180deg, #303740 0%, #15181C 100%);
+  transform: translateY(-1.5px);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="dark"] .btn-github:hover {
+  background: linear-gradient(180deg, #38404B 0%, #272E36 100%);
+  border-color: #57606A;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.55);
+}
+
+.btn-github:active {
+  transform: translateY(0);
+}
+
+/* 8. Close Modal High-Dimension Tactile Button (Ruby Crimson Red) */
+.btn-close-modal {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #EF4444 0%, #DC2626 100%);
+  color: #FFFFFF !important;
+  font-weight: 600;
+  border: 1px solid #B91C1C;
+  border-radius: 9999px;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.35) inset, 0 4px 14px rgba(239, 68, 68, 0.4);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+}
+
+[data-theme="dark"] .btn-close-modal {
+  background: linear-gradient(180deg, #F43F5E 0%, #E11D48 100%);
+  border: 1px solid #FB7185;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.3) inset, 0 4px 16px rgba(244, 63, 94, 0.5);
+}
+
+.btn-close-modal:hover {
+  transform: translateY(-1.5px) scale(1.06);
+  filter: brightness(1.1);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset, 0 6px 20px rgba(239, 68, 68, 0.6);
+}
+
+[data-theme="dark"] .btn-close-modal:hover {
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.4) inset, 0 8px 24px rgba(244, 63, 94, 0.7);
+}
+
+.btn-close-modal:active {
+  transform: translateY(0) scale(0.95);
+}
+
+/* 9. Secondary Standard Neutral Button */
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFFFFF;
+  color: #1F2937;
+  font-weight: 500;
+  border: 1px solid #D1D5DB;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06), 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] .btn-secondary {
+  background-color: #1F222B;
+  color: #F3F4F6;
+  border: 1px solid #373C4B;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.06) inset, 0 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary:hover {
+  transform: translateY(-1.5px);
+  background-color: #F9FAFB;
+  border-color: #9CA3AF;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="dark"] .btn-secondary:hover {
+  background-color: #282C38;
+  border-color: #4B5267;
+  color: #FFFFFF;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
+.btn-secondary:active {
+  transform: translateY(0);
+}
+
+/* Preview gradients */
+.preview-chat { --preview-a: #4F46E5; --preview-b: #818CF8; }
+.preview-tasks { --preview-a: #0D9488; --preview-b: #2DD4BF; }
+.preview-quiz { --preview-a: #D97706; --preview-b: #FBBF24; }
+.preview-portfolio { --preview-a: #475569; --preview-b: #94A3B8; }
+.preview-weather { --preview-a: #0284C7; --preview-b: #38BDF8; }
+.preview-expense { --preview-a: #059669; --preview-b: #34D399; }
+
+.certificate-sheet {
+  position: relative;
+  min-height: 166px;
+  padding: 24px;
+  overflow: hidden;
+  background: #FFFEFA;
+  color: #242018;
+  border: 10px solid #F3EEE2;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.certificate-sheet::before, .certificate-sheet::after {
+  content: "";
+  position: absolute;
+  width: 78px;
+  height: 78px;
+  border: 1px solid currentColor;
+  opacity: 0.09;
+  transform: rotate(45deg);
+}
+.certificate-sheet::before { left: -38px; top: -38px; }
+.certificate-sheet::after { right: -38px; bottom: -38px; }
+
+.certificate-modal-panel .certificate-sheet {
+  min-height: min(560px, 72vh);
+  padding: clamp(28px, 7vw, 76px);
+  border-width: clamp(12px, 2.2vw, 24px);
+  box-shadow: 0 30px 90px rgba(0,0,0,0.42);
+}
