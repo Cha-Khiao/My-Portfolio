@@ -180,17 +180,19 @@ export function PdfModalViewer({ url, alt = 'PDF Document' }: PdfModalViewerProp
       {/* Scrollable Viewport with Dynamic Razor-Sharp Canvas */}
       <div
         ref={containerRef}
-        className="relative w-full max-h-[74vh] sm:max-h-[78vh] overflow-auto p-3 sm:p-5 bg-zinc-950/95 rounded-b-sm flex items-center justify-center"
+        className="relative w-full max-h-[74vh] sm:max-h-[78vh] overflow-auto p-3 sm:p-5 bg-zinc-950/95 rounded-b-sm"
       >
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-zinc-950/80 z-10">
             <Loader2 className="w-7 h-7 text-indigo-500 animate-spin" />
           </div>
         )}
-        <canvas
-          ref={canvasRef}
-          className="shadow-2xl rounded-sm m-auto block bg-white"
-        />
+        <div className="w-fit min-w-full min-h-full flex items-center justify-center m-auto">
+          <canvas
+            ref={canvasRef}
+            className="shadow-2xl rounded-sm block bg-white"
+          />
+        </div>
       </div>
     </div>
   );

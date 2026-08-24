@@ -100,7 +100,7 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
           </div>
 
           {/* Main Content Area */}
-          <div className="p-1 sm:p-2 overflow-hidden flex flex-col items-center justify-center bg-card w-full">
+          <div className="p-1 sm:p-2 overflow-hidden flex flex-col bg-card w-full">
             {isPdf ? (
               isMobile ? (
                 /* Mobile: Dynamic High-DPI Vector Canvas PDF Engine */

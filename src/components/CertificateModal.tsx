@@ -111,7 +111,7 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
           </div>
 
           {/* Main Content Area */}
-          <div className="p-1 sm:p-2 flex flex-col items-center justify-center bg-card overflow-hidden w-full">
+          <div className="p-1 sm:p-2 flex flex-col bg-card overflow-hidden w-full">
             {isPdf ? (
               isMobile ? (
                 /* Mobile: Dynamic High-DPI Vector Canvas PDF Engine (100% Razor Sharp at Any Zoom Level) */
