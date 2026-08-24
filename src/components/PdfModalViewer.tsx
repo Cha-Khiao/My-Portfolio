@@ -28,6 +28,10 @@ export function PdfModalViewer({ url, alt = 'PDF Document' }: PdfModalViewerProp
       try {
         const pdfjsLib = await import('pdfjs-dist/legacy/build/pdf.mjs');
 
+        if (typeof window !== 'undefined') {
+          pdfjsLib.GlobalWorkerOptions.workerSrc = `${window.location.origin}/pdf.worker.min.mjs`;
+        }
+
         // Fetch binary data directly on main thread
         const res = await fetch(url);
         if (!res.ok) throw new Error('Fetch failed');
@@ -35,6 +39,8 @@ export function PdfModalViewer({ url, alt = 'PDF Document' }: PdfModalViewerProp
 
         const doc = await pdfjsLib.getDocument({
           data: new Uint8Array(buf),
+          cMapUrl: typeof window !== 'undefined' ? `${window.location.origin}/cmaps/` : '/cmaps/',
+          cMapPacked: true,
           enableXfa: false,
         }).promise;
 
