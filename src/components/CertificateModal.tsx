@@ -149,24 +149,23 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
             </div>
           </div>
 
-          {/* Main Viewer Area - Symmetrically Centered on Both X and Y Axes */}
+          {/* Main Viewer Area - Symmetrically Centered & 100% Fully Scrollable When Zoomed */}
           <div className="p-2 sm:p-3 flex flex-col items-center justify-center bg-card overflow-hidden w-full">
             {isPdf ? (
               isMobile ? (
-                /* Mobile: Hugging Aspect-Ratio Viewport with Perfectly Centered Pan & Zoom */
-                <div className="relative w-full max-h-[76vh] overflow-auto flex items-center justify-center p-3 sm:p-4 bg-zinc-950/90 rounded-sm">
-                  <div
-                    style={{
-                      transform: `scale(${zoom})`,
-                      transformOrigin: 'center center',
-                      transition: 'transform 0.15s ease-out',
-                    }}
-                    className="flex items-center justify-center m-auto"
-                  >
+                /* Mobile: 100% Clip-Free Layout Zoom with Full 2D Scrollability */
+                <div className="relative w-full max-h-[76vh] overflow-auto p-3 sm:p-4 bg-zinc-950/90 rounded-sm">
+                  <div className="min-w-full min-h-full flex items-center justify-center m-auto">
                     <img
                       src={`/api/certificates/thumbnail?url=${encodeURIComponent(cert.imageUrl!)}`}
                       alt={cert.name}
-                      className="max-h-[70vh] w-auto max-w-full object-contain rounded-sm shadow-xl select-none"
+                      style={{
+                        width: zoom > 1 ? `${Math.round(zoom * 100)}%` : undefined,
+                        maxWidth: zoom > 1 ? 'none' : '100%',
+                        maxHeight: zoom > 1 ? 'none' : '70vh',
+                        transition: 'width 0.15s ease-out',
+                      }}
+                      className="h-auto w-auto object-contain rounded-sm shadow-xl select-none m-auto"
                     />
                   </div>
                 </div>
@@ -187,21 +186,20 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
                 </div>
               )
             ) : cert.imageUrl && !imgError ? (
-              /* Image Certificate with Symmetric Zoom Support */
-              <div className="relative w-full max-h-[76vh] overflow-auto flex items-center justify-center p-3 sm:p-4 bg-zinc-950/90 rounded-sm">
-                <div
-                  style={{
-                    transform: `scale(${zoom})`,
-                    transformOrigin: 'center center',
-                    transition: 'transform 0.15s ease-out',
-                  }}
-                  className="flex items-center justify-center m-auto"
-                >
+              /* Image Certificate with Clip-Free Layout Zoom */
+              <div className="relative w-full max-h-[76vh] overflow-auto p-3 sm:p-4 bg-zinc-950/90 rounded-sm">
+                <div className="min-w-full min-h-full flex items-center justify-center m-auto">
                   <img
                     src={cert.imageUrl}
                     alt={cert.name}
                     onError={() => setImgError(true)}
-                    className="max-h-[70vh] w-auto max-w-full object-contain rounded-sm shadow-xl"
+                    style={{
+                      width: zoom > 1 ? `${Math.round(zoom * 100)}%` : undefined,
+                      maxWidth: zoom > 1 ? 'none' : '100%',
+                      maxHeight: zoom > 1 ? 'none' : '70vh',
+                      transition: 'width 0.15s ease-out',
+                    }}
+                    className="h-auto w-auto object-contain rounded-sm shadow-xl m-auto"
                   />
                 </div>
               </div>
