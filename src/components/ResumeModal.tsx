@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { X, ExternalLink, FileText, ZoomIn, ZoomOut } from 'lucide-react';
+import { X, ExternalLink, FileText, ZoomIn, ZoomOut, Move } from 'lucide-react';
 
 interface ResumeModalProps {
   isOpen: boolean;
@@ -14,6 +14,11 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
   const [imgError, setImgError] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
   const [zoom, setZoom] = React.useState(1);
+  const [pan, setPan] = React.useState({ x: 0, y: 0 });
+
+  const isDraggingRef = React.useRef(false);
+  const startPosRef = React.useRef({ x: 0, y: 0 });
+  const startPanRef = React.useRef({ x: 0, y: 0 });
 
   React.useEffect(() => {
     const check = () => {
@@ -27,6 +32,7 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
   React.useEffect(() => {
     setImgError(false);
     setZoom(1);
+    setPan({ x: 0, y: 0 });
   }, [resumeUrl]);
 
   React.useEffect(() => {
@@ -50,9 +56,83 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
     resumeUrl.includes('.pdf') ||
     resumeUrl.startsWith('data:application/pdf');
 
-  const handleZoomIn = () => setZoom((prev) => Math.min(Number((prev + 0.25).toFixed(2)), 3.0));
-  const handleZoomOut = () => setZoom((prev) => Math.max(Number((prev - 0.25).toFixed(2)), 0.75));
-  const handleResetZoom = () => setZoom(1);
+  const handleZoomIn = () => {
+    setZoom((prev) => Math.min(Number((prev + 0.5).toFixed(2)), 3.0));
+  };
+
+  const handleZoomOut = () => {
+    setZoom((prev) => {
+      const next = Math.max(Number((prev - 0.5).toFixed(2)), 1.0);
+      if (next === 1) setPan({ x: 0, y: 0 });
+      return next;
+    });
+  };
+
+  const handleResetZoom = () => {
+    setZoom(1);
+    setPan({ x: 0, y: 0 });
+  };
+
+  // Touch Drag / Pan Handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (zoom <= 1) return;
+    const touch = e.touches[0];
+    isDraggingRef.current = true;
+    startPosRef.current = { x: touch.clientX, y: touch.clientY };
+    startPanRef.current = { ...pan };
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDraggingRef.current || zoom <= 1) return;
+    const touch = e.touches[0];
+    const dx = touch.clientX - startPosRef.current.x;
+    const dy = touch.clientY - startPosRef.current.y;
+    setPan({
+      x: startPanRef.current.x + dx,
+      y: startPanRef.current.y + dy,
+    });
+  };
+
+  const handleTouchEnd = () => {
+    isDraggingRef.current = false;
+  };
+
+  // Mouse Drag Handlers
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (zoom <= 1) return;
+    e.preventDefault();
+    isDraggingRef.current = true;
+    startPosRef.current = { x: e.clientX, y: e.clientY };
+    startPanRef.current = { ...pan };
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current || zoom <= 1) return;
+    e.preventDefault();
+    const dx = e.clientX - startPosRef.current.x;
+    const dy = e.clientY - startPosRef.current.y;
+    setPan({
+      x: startPanRef.current.x + dx,
+      y: startPanRef.current.y + dy,
+    });
+  };
+
+  const handleMouseUp = () => {
+    isDraggingRef.current = false;
+  };
+
+  // Double Tap to toggle Zoom
+  const handleDoubleTap = () => {
+    if (zoom > 1) {
+      handleResetZoom();
+    } else {
+      setZoom(2.0);
+    }
+  };
+
+  const renderImageUrl = isPdf
+    ? `/api/certificates/thumbnail?url=${encodeURIComponent(resumeUrl)}`
+    : resumeUrl;
 
   return (
     <div
@@ -79,9 +159,9 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
           <X className="w-4 h-4" />
         </button>
 
-        {/* Modal Window - Symmetrically Hugs Content */}
+        {/* Modal Window */}
         <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-2xl flex flex-col w-full max-h-[94vh]">
-          {/* Header Bar - Symmetric Padding */}
+          {/* Header Bar */}
           <div className="flex items-center justify-between px-4 sm:px-5 py-2.5 sm:py-3 border-b border-border bg-tag-bg/90 flex-shrink-0 gap-3">
             <div className="min-w-0 pr-2">
               <h3 className="font-outfit text-xs sm:text-sm md:text-base font-bold text-foreground truncate flex items-center gap-2">
@@ -99,7 +179,7 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
                   <button
                     type="button"
                     onClick={handleZoomOut}
-                    disabled={zoom <= 0.75}
+                    disabled={zoom <= 1.0}
                     className="p-1 hover:bg-tag-bg rounded text-fg-secondary hover:text-foreground disabled:opacity-30 transition-colors"
                     title="ซูมออก"
                     aria-label="Zoom out"
@@ -138,50 +218,52 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
             </div>
           </div>
 
-          {/* Main Content Area - True Scrollable Viewport (Zero Flexbox Centering Data Loss) */}
+          {/* Main Content Area */}
           <div className="p-2 sm:p-3 overflow-hidden flex flex-col items-center justify-center bg-card w-full">
-            {isPdf ? (
-              isMobile ? (
-                /* Mobile: 100% Clip-Free Scroll Viewport */
-                <div className="relative w-full max-h-[78vh] overflow-auto p-3 sm:p-4 bg-zinc-950/90 rounded-sm text-center">
-                  <div className="inline-flex min-w-full min-h-full items-center justify-center">
-                    <img
-                      src={`/api/certificates/thumbnail?url=${encodeURIComponent(resumeUrl)}`}
-                      alt={`Resume - ${name}`}
-                      style={{
-                        width: zoom > 1 ? `${Math.round(zoom * 100)}%` : undefined,
-                        maxWidth: zoom > 1 ? 'none' : '100%',
-                        maxHeight: zoom > 1 ? 'none' : '74vh',
-                        transition: 'width 0.15s ease-out',
-                      }}
-                      className="h-auto w-auto object-contain rounded-sm shadow-xl select-none block mx-auto"
-                    />
+            {isPdf && !isMobile ? (
+              /* Desktop: Native High-Speed PDFium Frame */
+              <div className="w-full h-[76vh] sm:h-[80vh] md:h-[84vh] rounded-sm overflow-hidden border border-border bg-white shadow-inner">
+                <iframe
+                  src={`${resumeUrl}#page=1&view=FitH&toolbar=1`}
+                  title={`Resume - ${name}`}
+                  className="w-full h-full border-0 bg-white"
+                />
+              </div>
+            ) : renderImageUrl && !imgError ? (
+              /* Mobile & Image View: Touch/Drag Pan & Zoom Viewport (100% Zero-Clipping) */
+              <div
+                className="relative w-full h-[66vh] sm:h-[76vh] md:h-[80vh] overflow-hidden bg-zinc-950/95 rounded-sm flex items-center justify-center select-none"
+                style={{ cursor: zoom > 1 ? (isDraggingRef.current ? 'grabbing' : 'grab') : 'default', touchAction: zoom > 1 ? 'none' : 'auto' }}
+                onTouchStart={handleTouchStart}
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
+                onDoubleClick={handleDoubleTap}
+              >
+                {/* Visual Drag Instruction Badge when Zoomed */}
+                {zoom > 1 && (
+                  <div className="absolute top-2.5 left-1/2 -translate-x-1/2 z-20 pointer-events-none bg-black/70 text-white/90 text-[10px] px-2.5 py-1 rounded-full backdrop-blur-sm flex items-center gap-1.5 shadow-md animate-in fade-in duration-150">
+                    <Move className="w-3 h-3 text-sky-400" /> แตะลากเพื่อเลื่อนดูทุกส่วน
                   </div>
-                </div>
-              ) : (
-                /* Desktop: Native High-Speed PDFium Frame */
-                <div className="w-full h-[76vh] sm:h-[80vh] md:h-[84vh] rounded-sm overflow-hidden border border-border bg-white shadow-inner">
-                  <iframe
-                    src={`${resumeUrl}#page=1&view=FitH&toolbar=1`}
-                    title={`Resume - ${name}`}
-                    className="w-full h-full border-0 bg-white"
-                  />
-                </div>
-              )
-            ) : !imgError ? (
-              <div className="relative w-full max-h-[78vh] overflow-auto p-3 sm:p-4 bg-zinc-950/90 rounded-sm text-center">
-                <div className="inline-flex min-w-full min-h-full items-center justify-center">
+                )}
+
+                <div
+                  style={{
+                    transform: `translate3d(${pan.x}px, ${pan.y}px, 0) scale(${zoom})`,
+                    transformOrigin: 'center center',
+                    transition: isDraggingRef.current ? 'none' : 'transform 0.15s ease-out',
+                    willChange: 'transform',
+                  }}
+                  className="flex items-center justify-center max-w-full max-h-full pointer-events-none"
+                >
                   <img
-                    src={resumeUrl}
+                    src={renderImageUrl}
                     alt={`Resume - ${name}`}
                     onError={() => setImgError(true)}
-                    style={{
-                      width: zoom > 1 ? `${Math.round(zoom * 100)}%` : undefined,
-                      maxWidth: zoom > 1 ? 'none' : '100%',
-                      maxHeight: zoom > 1 ? 'none' : '74vh',
-                      transition: 'width 0.15s ease-out',
-                    }}
-                    className="h-auto w-auto object-contain rounded-sm shadow-xl block mx-auto"
+                    className="max-h-[62vh] sm:max-h-[72vh] md:max-h-[76vh] max-w-[95%] w-auto object-contain rounded shadow-2xl pointer-events-auto"
                   />
                 </div>
               </div>
