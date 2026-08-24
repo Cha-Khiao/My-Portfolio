@@ -28,7 +28,7 @@ export function PdfThumbnail({
 
   if (imgError) {
     return (
-      <div className="certificate-sheet w-full h-full p-3 sm:p-4 flex flex-col justify-between select-none">
+      <div className="w-full h-full p-4 flex flex-col justify-between bg-zinc-50 dark:bg-zinc-900 border border-border/50 rounded-sm select-none">
         <div>
           <p
             className="text-[10px] font-bold tracking-wider uppercase truncate"
@@ -36,16 +36,13 @@ export function PdfThumbnail({
           >
             {org || 'Certificate'}
           </p>
-          <p className="font-outfit text-[8px] sm:text-[9px] text-[#9A8F7B] tracking-widest uppercase my-1">
-            Certificate of Completion
-          </p>
-          <h3 className="font-outfit text-xs sm:text-sm font-bold leading-snug line-clamp-2 text-zinc-900">
+          <h3 className="font-outfit text-xs sm:text-sm font-bold leading-snug line-clamp-2 text-foreground mt-1">
             {alt}
           </h3>
         </div>
         <div className="flex items-center justify-between mt-2">
           <span
-            className="w-4 h-4 border-2 rounded-full shadow-[inset_0_0_0_2px_#FFFEFA]"
+            className="w-4 h-4 border-2 rounded-full shadow-sm"
             style={{ borderColor: color || '#2563EB' }}
             aria-hidden="true"
           />
