@@ -149,13 +149,13 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
             </div>
           </div>
 
-          {/* Main Viewer Area - Symmetrically Centered & 100% Fully Scrollable When Zoomed */}
+          {/* Main Viewer Area - True Scrollable Viewport (Zero Flexbox Centering Data Loss) */}
           <div className="p-2 sm:p-3 flex flex-col items-center justify-center bg-card overflow-hidden w-full">
             {isPdf ? (
               isMobile ? (
-                /* Mobile: 100% Clip-Free Layout Zoom with Full 2D Scrollability */
-                <div className="relative w-full max-h-[76vh] overflow-auto p-3 sm:p-4 bg-zinc-950/90 rounded-sm">
-                  <div className="min-w-full min-h-full flex items-center justify-center m-auto">
+                /* Mobile: 100% Clip-Free Scroll Viewport */
+                <div className="relative w-full max-h-[76vh] overflow-auto p-3 sm:p-4 bg-zinc-950/90 rounded-sm text-center">
+                  <div className="inline-flex min-w-full min-h-full items-center justify-center">
                     <img
                       src={`/api/certificates/thumbnail?url=${encodeURIComponent(cert.imageUrl!)}`}
                       alt={cert.name}
@@ -165,7 +165,7 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
                         maxHeight: zoom > 1 ? 'none' : '70vh',
                         transition: 'width 0.15s ease-out',
                       }}
-                      className="h-auto w-auto object-contain rounded-sm shadow-xl select-none m-auto"
+                      className="h-auto w-auto object-contain rounded-sm shadow-xl select-none block mx-auto"
                     />
                   </div>
                 </div>
@@ -187,8 +187,8 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
               )
             ) : cert.imageUrl && !imgError ? (
               /* Image Certificate with Clip-Free Layout Zoom */
-              <div className="relative w-full max-h-[76vh] overflow-auto p-3 sm:p-4 bg-zinc-950/90 rounded-sm">
-                <div className="min-w-full min-h-full flex items-center justify-center m-auto">
+              <div className="relative w-full max-h-[76vh] overflow-auto p-3 sm:p-4 bg-zinc-950/90 rounded-sm text-center">
+                <div className="inline-flex min-w-full min-h-full items-center justify-center">
                   <img
                     src={cert.imageUrl}
                     alt={cert.name}
@@ -199,7 +199,7 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
                       maxHeight: zoom > 1 ? 'none' : '70vh',
                       transition: 'width 0.15s ease-out',
                     }}
-                    className="h-auto w-auto object-contain rounded-sm shadow-xl m-auto"
+                    className="h-auto w-auto object-contain rounded-sm shadow-xl block mx-auto"
                   />
                 </div>
               </div>
