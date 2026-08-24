@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { X, ExternalLink, FileText, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
+import { X, ExternalLink, FileText, ZoomIn, ZoomOut } from 'lucide-react';
 
 interface ResumeModalProps {
   isOpen: boolean;
@@ -56,7 +56,7 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden"
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-5 md:p-6 overflow-hidden"
       role="dialog"
       aria-modal="true"
     >
@@ -67,22 +67,22 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
         aria-hidden="true"
       />
 
-      <div className="relative z-10 w-full max-w-4xl max-h-[96vh] my-auto flex flex-col animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative z-10 w-full max-w-4xl mx-auto my-auto flex flex-col animate-in fade-in zoom-in-95 duration-200">
         {/* Close Button */}
         <button
           type="button"
           onClick={onClose}
-          className="btn-close-modal absolute -top-3 -right-2 sm:-top-3.5 sm:-right-3.5 z-30 w-8 h-8 sm:w-9 sm:h-9 shadow-xl"
+          className="btn-close-modal absolute -top-3.5 -right-3 sm:-top-4 sm:-right-3.5 z-30 w-8 h-8 sm:w-9 sm:h-9 shadow-xl"
           aria-label="Close"
           title="ปิด"
         >
           <X className="w-4 h-4" />
         </button>
 
-        {/* Modal Window - Auto Hugs Content */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[94vh]">
-          {/* Header Bar */}
-          <div className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 border-b border-border bg-tag-bg/80 flex-shrink-0 gap-2">
+        {/* Modal Window - Symmetrically Hugs Content */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-2xl flex flex-col w-full max-h-[94vh]">
+          {/* Header Bar - Symmetric Padding */}
+          <div className="flex items-center justify-between px-4 sm:px-5 py-2.5 sm:py-3 border-b border-border bg-tag-bg/90 flex-shrink-0 gap-3">
             <div className="min-w-0 pr-2">
               <h3 className="font-outfit text-xs sm:text-sm md:text-base font-bold text-foreground truncate flex items-center gap-2">
                 <FileText className="w-4 h-4 text-sky-500" /> Resume — {name}
@@ -92,10 +92,10 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
               </p>
             </div>
 
-            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2 flex-shrink-0">
               {/* Zoom Controls (Active for Mobile/Image View) */}
               {(isMobile || !isPdf) && (
-                <div className="flex items-center bg-background/80 border border-border rounded-lg p-0.5 shadow-sm">
+                <div className="flex items-center bg-background/90 border border-border rounded-lg p-0.5 shadow-sm">
                   <button
                     type="button"
                     onClick={handleZoomOut}
@@ -138,19 +138,19 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
             </div>
           </div>
 
-          {/* Main Content Area - Desktop Native PDF / Mobile Zoomable High-Res Image */}
-          <div className="p-1 sm:p-2 overflow-hidden flex flex-col items-center justify-center bg-card">
+          {/* Main Content Area - Symmetrically Centered on Both Axes */}
+          <div className="p-2 sm:p-3 overflow-hidden flex flex-col items-center justify-center bg-card w-full">
             {isPdf ? (
               isMobile ? (
-                /* Mobile: Hugging Aspect-Ratio Viewport with Smooth 2D Pan & Zoom */
-                <div className="relative w-full max-h-[78vh] overflow-auto flex items-center justify-center p-2 sm:p-3 bg-zinc-950/90 rounded-sm [scrollbar-gutter:stable]">
+                /* Mobile: Hugging Aspect-Ratio Viewport with Perfectly Centered Pan & Zoom */
+                <div className="relative w-full max-h-[78vh] overflow-auto flex items-center justify-center p-3 sm:p-4 bg-zinc-950/90 rounded-sm">
                   <div
                     style={{
                       transform: `scale(${zoom})`,
                       transformOrigin: 'center center',
                       transition: 'transform 0.15s ease-out',
                     }}
-                    className="flex items-center justify-center min-w-full"
+                    className="flex items-center justify-center m-auto"
                   >
                     <img
                       src={`/api/certificates/thumbnail?url=${encodeURIComponent(resumeUrl)}`}
@@ -170,14 +170,14 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
                 </div>
               )
             ) : !imgError ? (
-              <div className="relative w-full max-h-[78vh] overflow-auto flex items-center justify-center p-2 sm:p-3 bg-zinc-950/90 rounded-sm [scrollbar-gutter:stable]">
+              <div className="relative w-full max-h-[78vh] overflow-auto flex items-center justify-center p-3 sm:p-4 bg-zinc-950/90 rounded-sm">
                 <div
                   style={{
                     transform: `scale(${zoom})`,
                     transformOrigin: 'center center',
                     transition: 'transform 0.15s ease-out',
                   }}
-                  className="flex items-center justify-center min-w-full"
+                  className="flex items-center justify-center m-auto"
                 >
                   <img
                     src={resumeUrl}
