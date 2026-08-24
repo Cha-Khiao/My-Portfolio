@@ -33,7 +33,7 @@ export function CertificateCard({ cert, onClick }: CertificateCardProps) {
           <PdfThumbnail
             url={imageUrl || ''}
             alt={name}
-            className="w-full h-full object-cover"
+            className="w-full h-full object-contain bg-white"
           />
 
           {/* Hover Overlay */}

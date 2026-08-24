@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { FileText } from 'lucide-react';
 
 interface PdfThumbnailProps {
   url: string;
@@ -30,7 +31,7 @@ export function PdfThumbnail({ url, alt = 'PDF Preview', className = '' }: PdfTh
         const pdf = await loadingTask.promise;
         const page = await pdf.getPage(1);
 
-        // Render at high resolution (scale 2.0) for ultra-sharp text and graphics
+        // Render at high resolution
         const unscaledViewport = page.getViewport({ scale: 1 });
         const scale = Math.max(2, 600 / unscaledViewport.width);
         const viewport = page.getViewport({ scale });
@@ -47,7 +48,6 @@ export function PdfThumbnail({ url, alt = 'PDF Preview', className = '' }: PdfTh
           viewport,
         };
 
-        // Render PDF page into canvas
         // @ts-ignore
         await page.render(renderContext).promise;
 
@@ -56,7 +56,6 @@ export function PdfThumbnail({ url, alt = 'PDF Preview', className = '' }: PdfTh
           setLoading(false);
         }
       } catch (err) {
-        console.warn('PDF.js rendering fallback:', err);
         if (isMounted) {
           setLoading(false);
         }
@@ -77,25 +76,25 @@ export function PdfThumbnail({ url, alt = 'PDF Preview', className = '' }: PdfTh
       <img
         src={dataUrl}
         alt={alt}
-        className={`w-full h-full object-cover select-none ${className}`}
+        className={`w-full h-full object-contain bg-white select-none ${className}`}
       />
     );
   }
 
   if (loading) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-white/80 dark:bg-zinc-900/80 animate-pulse">
+      <div className="w-full h-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 animate-pulse">
         <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
-  // Pure fallback if rendering error
+  // Clean, lightweight fallback (never an unscaled iframe that overflows the card)
   return (
-    <iframe
-      src={`${url}#page=1&view=FitH&toolbar=0&navpanes=0&scrollbar=0`}
-      title={alt}
-      className={`w-full h-full border-0 pointer-events-none bg-white ${className}`}
-    />
+    <div className="w-full h-full flex flex-col items-center justify-center p-3 bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-950 text-center select-none">
+      <FileText className="w-8 h-8 text-rose-500 mb-1.5 opacity-90" />
+      <span className="text-[11px] font-bold text-foreground line-clamp-2 px-1 leading-tight">{alt}</span>
+      <span className="text-[9px] text-fg-tertiary mt-1">แตะเพื่อเปิดดูเอกสาร PDF</span>
+    </div>
   );
 }

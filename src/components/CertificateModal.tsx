@@ -96,13 +96,13 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
             )}
           </div>
 
-          {/* Main Viewer Area - True Page-Fit Initial Calculation */}
+          {/* Main Viewer Area - Responsive Page-Fit Calculation */}
           <div className="p-1 sm:p-2 flex flex-col items-center justify-center bg-card">
             {isPdf ? (
-              <div className="w-full h-[62vh] sm:h-[68vh] md:h-[72vh] rounded-sm overflow-hidden border border-border bg-white">
+              <div className="w-full h-[62vh] sm:h-[68vh] md:h-[72vh] rounded-sm overflow-hidden border border-border bg-white shadow-inner">
                 {isReady ? (
                   <iframe
-                    src={`${cert.imageUrl}#page=1&zoom=page-fit&view=FitV&toolbar=1`}
+                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(cert.imageUrl!)}&embedded=true`}
                     title={cert.name}
                     className="w-full h-full border-0 bg-white"
                   />

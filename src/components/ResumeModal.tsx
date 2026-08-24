@@ -87,12 +87,12 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
             </div>
           </div>
 
-          {/* Main Content Area - Fit to Width (view=FitH) for readable text */}
+          {/* Main Content Area - Responsive PDF & Image View */}
           <div className="p-1 sm:p-2 overflow-hidden flex flex-col items-center justify-center bg-card">
             {isPdf ? (
-              <div className="w-full h-[76vh] sm:h-[80vh] md:h-[84vh] rounded-sm overflow-hidden border border-border bg-white">
+              <div className="w-full h-[76vh] sm:h-[80vh] md:h-[84vh] rounded-sm overflow-hidden border border-border bg-white shadow-inner">
                 <iframe
-                  src={`${resumeUrl}#page=1&view=FitH&toolbar=1`}
+                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(resumeUrl)}&embedded=true`}
                   title={`Resume - ${name}`}
                   className="w-full h-full border-0 bg-white"
                 />
