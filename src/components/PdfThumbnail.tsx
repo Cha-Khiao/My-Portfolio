@@ -1,21 +1,26 @@
 'use client';
 
 import * as React from 'react';
-import { FileText } from 'lucide-react';
 
 interface PdfThumbnailProps {
   url: string;
   alt?: string;
+  org?: string;
+  color?: string;
   className?: string;
 }
 
-export function PdfThumbnail({ url, alt = 'PDF Preview', className = '' }: PdfThumbnailProps) {
+export function PdfThumbnail({
+  url,
+  alt = 'PDF Preview',
+  org = '',
+  color = '#2563EB',
+  className = '',
+}: PdfThumbnailProps) {
   const [dataUrl, setDataUrl] = React.useState<string | null>(null);
-  const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     let isMounted = true;
-    setLoading(true);
 
     async function renderPdf() {
       try {
@@ -53,12 +58,9 @@ export function PdfThumbnail({ url, alt = 'PDF Preview', className = '' }: PdfTh
 
         if (isMounted) {
           setDataUrl(canvas.toDataURL('image/png'));
-          setLoading(false);
         }
       } catch (err) {
-        if (isMounted) {
-          setLoading(false);
-        }
+        // Silent fallback to certificate sheet
       }
     }
 
@@ -81,20 +83,33 @@ export function PdfThumbnail({ url, alt = 'PDF Preview', className = '' }: PdfTh
     );
   }
 
-  if (loading) {
-    return (
-      <div className="w-full h-full flex items-center justify-center bg-zinc-100 dark:bg-zinc-800 animate-pulse">
-        <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
-  }
-
-  // Clean, lightweight fallback (never an unscaled iframe that overflows the card)
+  // Instant, beautiful certificate preview sheet (Zero loading lag, perfect for mobile)
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center p-3 bg-gradient-to-br from-zinc-50 to-zinc-100 dark:from-zinc-900 dark:to-zinc-950 text-center select-none">
-      <FileText className="w-8 h-8 text-rose-500 mb-1.5 opacity-90" />
-      <span className="text-[11px] font-bold text-foreground line-clamp-2 px-1 leading-tight">{alt}</span>
-      <span className="text-[9px] text-fg-tertiary mt-1">แตะเพื่อเปิดดูเอกสาร PDF</span>
+    <div className="certificate-sheet w-full h-full p-3 sm:p-4 flex flex-col justify-between select-none">
+      <div>
+        <p
+          className="text-[10px] font-bold tracking-wider uppercase truncate"
+          style={{ color: color || '#2563EB' }}
+        >
+          {org || 'Certificate'}
+        </p>
+        <p className="font-outfit text-[8px] sm:text-[9px] text-[#9A8F7B] tracking-widest uppercase my-1">
+          Certificate of Completion
+        </p>
+        <h3 className="font-outfit text-xs sm:text-sm font-bold leading-snug line-clamp-2 text-zinc-900">
+          {alt}
+        </h3>
+      </div>
+      <div className="flex items-center justify-between mt-2">
+        <span
+          className="w-4 h-4 border-2 rounded-full shadow-[inset_0_0_0_2px_#FFFEFA]"
+          style={{ borderColor: color || '#2563EB' }}
+          aria-hidden="true"
+        />
+        <span className="text-[9px] font-mono font-bold px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-600">
+          PDF
+        </span>
+      </div>
     </div>
   );
 }

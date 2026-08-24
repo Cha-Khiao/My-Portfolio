@@ -12,6 +12,16 @@ interface ResumeModalProps {
 
 export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalProps) {
   const [imgError, setImgError] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const check = () => {
+      setIsMobile(window.innerWidth < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   React.useEffect(() => {
     setImgError(false);
@@ -92,7 +102,11 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
             {isPdf ? (
               <div className="w-full h-[76vh] sm:h-[80vh] md:h-[84vh] rounded-sm overflow-hidden border border-border bg-white shadow-inner">
                 <iframe
-                  src={`https://docs.google.com/viewer?url=${encodeURIComponent(resumeUrl)}&embedded=true`}
+                  src={
+                    isMobile
+                      ? `https://docs.google.com/viewer?url=${encodeURIComponent(resumeUrl)}&embedded=true`
+                      : `${resumeUrl}#page=1&view=FitH&toolbar=1`
+                  }
                   title={`Resume - ${name}`}
                   className="w-full h-full border-0 bg-white"
                 />

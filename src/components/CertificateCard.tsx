@@ -29,10 +29,12 @@ export function CertificateCard({ cert, onClick }: CertificateCardProps) {
     >
       {isPdf ? (
         <div className="relative aspect-[1.414/1] w-full overflow-hidden rounded-sm bg-white mb-2.5 shadow-sm">
-          {/* Native High-Resolution PDF Thumbnail - 100% Zero Black Bars / Canvas Margin */}
+          {/* Native High-Resolution PDF Thumbnail */}
           <PdfThumbnail
             url={imageUrl || ''}
             alt={name}
+            org={org}
+            color={color}
             className="w-full h-full object-contain bg-white"
           />
 

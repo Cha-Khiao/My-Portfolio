@@ -12,6 +12,16 @@ interface CertificateModalProps {
 export function CertificateModal({ cert, onClose }: CertificateModalProps) {
   const [imgError, setImgError] = React.useState(false);
   const [isReady, setIsReady] = React.useState(false);
+  const [isMobile, setIsMobile] = React.useState(false);
+
+  React.useEffect(() => {
+    const check = () => {
+      setIsMobile(window.innerWidth < 768 || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent));
+    };
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
 
   React.useEffect(() => {
     setImgError(false);
@@ -102,7 +112,11 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
               <div className="w-full h-[62vh] sm:h-[68vh] md:h-[72vh] rounded-sm overflow-hidden border border-border bg-white shadow-inner">
                 {isReady ? (
                   <iframe
-                    src={`https://docs.google.com/viewer?url=${encodeURIComponent(cert.imageUrl!)}&embedded=true`}
+                    src={
+                      isMobile
+                        ? `https://docs.google.com/viewer?url=${encodeURIComponent(cert.imageUrl!)}&embedded=true`
+                        : `${cert.imageUrl}#page=1&zoom=page-fit&view=FitV&toolbar=1`
+                    }
                     title={cert.name}
                     className="w-full h-full border-0 bg-white"
                   />
