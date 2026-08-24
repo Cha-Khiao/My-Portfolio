@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import { X, ExternalLink, FileText } from 'lucide-react';
+import { X, ExternalLink, FileText, ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 interface ResumeModalProps {
   isOpen: boolean;
@@ -13,6 +13,7 @@ interface ResumeModalProps {
 export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalProps) {
   const [imgError, setImgError] = React.useState(false);
   const [isMobile, setIsMobile] = React.useState(false);
+  const [zoom, setZoom] = React.useState(1);
 
   React.useEffect(() => {
     const check = () => {
@@ -25,6 +26,7 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
 
   React.useEffect(() => {
     setImgError(false);
+    setZoom(1);
   }, [resumeUrl]);
 
   React.useEffect(() => {
@@ -48,6 +50,10 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
     resumeUrl.includes('.pdf') ||
     resumeUrl.startsWith('data:application/pdf');
 
+  const handleZoomIn = () => setZoom((prev) => Math.min(Number((prev + 0.25).toFixed(2)), 3.0));
+  const handleZoomOut = () => setZoom((prev) => Math.max(Number((prev - 0.25).toFixed(2)), 0.75));
+  const handleResetZoom = () => setZoom(1);
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden"
@@ -61,7 +67,7 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
         aria-hidden="true"
       />
 
-      <div className="relative z-10 w-full max-w-5xl max-h-[96vh] my-auto flex flex-col animate-in fade-in zoom-in-95 duration-200">
+      <div className="relative z-10 w-full max-w-4xl max-h-[96vh] my-auto flex flex-col animate-in fade-in zoom-in-95 duration-200">
         {/* Close Button */}
         <button
           type="button"
@@ -73,11 +79,11 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
           <X className="w-4 h-4" />
         </button>
 
-        {/* Modal Window */}
+        {/* Modal Window - Auto Hugs Content */}
         <div className="bg-card border border-border rounded-2xl overflow-hidden shadow-2xl flex flex-col max-h-[94vh]">
           {/* Header Bar */}
-          <div className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 border-b border-border bg-tag-bg/80 flex-shrink-0">
-            <div className="min-w-0 pr-3">
+          <div className="flex items-center justify-between px-3.5 sm:px-5 py-2.5 sm:py-3 border-b border-border bg-tag-bg/80 flex-shrink-0 gap-2">
+            <div className="min-w-0 pr-2">
               <h3 className="font-outfit text-xs sm:text-sm md:text-base font-bold text-foreground truncate flex items-center gap-2">
                 <FileText className="w-4 h-4 text-sky-500" /> Resume — {name}
               </h3>
@@ -85,44 +91,101 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
                 {isPdf ? 'เอกสาร PDF เรซูเม่' : 'รูปภาพเรซูเม่'}
               </p>
             </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
+
+            <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+              {/* Zoom Controls (Active for Mobile/Image View) */}
+              {(isMobile || !isPdf) && (
+                <div className="flex items-center bg-background/80 border border-border rounded-lg p-0.5 shadow-sm">
+                  <button
+                    type="button"
+                    onClick={handleZoomOut}
+                    disabled={zoom <= 0.75}
+                    className="p-1 hover:bg-tag-bg rounded text-fg-secondary hover:text-foreground disabled:opacity-30 transition-colors"
+                    title="ซูมออก"
+                    aria-label="Zoom out"
+                  >
+                    <ZoomOut className="w-3.5 h-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleResetZoom}
+                    className="px-1.5 text-[11px] font-mono font-semibold text-fg-secondary hover:text-foreground transition-colors"
+                    title="รีเซ็ตขนาด 100%"
+                  >
+                    {Math.round(zoom * 100)}%
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleZoomIn}
+                    disabled={zoom >= 3.0}
+                    className="p-1 hover:bg-tag-bg rounded text-fg-secondary hover:text-foreground disabled:opacity-30 transition-colors"
+                    title="ซูมเข้า"
+                    aria-label="Zoom in"
+                  >
+                    <ZoomIn className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
               <a
                 href={resumeUrl}
                 target="_blank"
                 rel="noreferrer"
                 className="btn-primary px-3.5 sm:px-5 py-1.5 text-xs sm:text-sm gap-1.5 shadow-sm"
               >
-                <ExternalLink className="w-3.5 h-3.5" /> <span className="hidden xs:inline sm:inline">เปิดดู</span>เต็มจอ
+                <ExternalLink className="w-3.5 h-3.5" /> <span className="hidden xs:inline">เปิดดู</span>เต็มจอ
               </a>
             </div>
           </div>
 
-          {/* Main Content Area - Desktop Native PDF / Mobile Instant Real Image View */}
+          {/* Main Content Area - Desktop Native PDF / Mobile Zoomable High-Res Image */}
           <div className="p-1 sm:p-2 overflow-hidden flex flex-col items-center justify-center bg-card">
             {isPdf ? (
-              <div className="relative w-full h-[76vh] sm:h-[80vh] md:h-[84vh] flex items-center justify-center rounded-sm overflow-hidden border border-border bg-white shadow-inner">
-                {isMobile ? (
-                  <img
-                    src={`/api/certificates/thumbnail?url=${encodeURIComponent(resumeUrl)}`}
-                    alt={`Resume - ${name}`}
-                    className="max-h-full w-auto max-w-full object-contain rounded-sm select-none"
-                  />
-                ) : (
+              isMobile ? (
+                /* Mobile: Hugging Aspect-Ratio Viewport with Smooth 2D Pan & Zoom */
+                <div className="relative w-full max-h-[78vh] overflow-auto flex items-center justify-center p-2 sm:p-3 bg-zinc-950/90 rounded-sm [scrollbar-gutter:stable]">
+                  <div
+                    style={{
+                      transform: `scale(${zoom})`,
+                      transformOrigin: 'center center',
+                      transition: 'transform 0.15s ease-out',
+                    }}
+                    className="flex items-center justify-center min-w-full"
+                  >
+                    <img
+                      src={`/api/certificates/thumbnail?url=${encodeURIComponent(resumeUrl)}`}
+                      alt={`Resume - ${name}`}
+                      className="max-h-[74vh] w-auto max-w-full object-contain rounded-sm shadow-xl select-none"
+                    />
+                  </div>
+                </div>
+              ) : (
+                /* Desktop: Native High-Speed PDFium Frame */
+                <div className="w-full h-[76vh] sm:h-[80vh] md:h-[84vh] rounded-sm overflow-hidden border border-border bg-white shadow-inner">
                   <iframe
                     src={`${resumeUrl}#page=1&view=FitH&toolbar=1`}
                     title={`Resume - ${name}`}
                     className="w-full h-full border-0 bg-white"
                   />
-                )}
-              </div>
+                </div>
+              )
             ) : !imgError ? (
-              <div className="relative w-full h-[76vh] sm:h-[80vh] md:h-[84vh] flex items-center justify-center p-1 sm:p-2">
-                <img
-                  src={resumeUrl}
-                  alt={`Resume - ${name}`}
-                  onError={() => setImgError(true)}
-                  className="max-h-full w-auto max-w-full object-contain rounded-sm border border-border bg-white"
-                />
+              <div className="relative w-full max-h-[78vh] overflow-auto flex items-center justify-center p-2 sm:p-3 bg-zinc-950/90 rounded-sm [scrollbar-gutter:stable]">
+                <div
+                  style={{
+                    transform: `scale(${zoom})`,
+                    transformOrigin: 'center center',
+                    transition: 'transform 0.15s ease-out',
+                  }}
+                  className="flex items-center justify-center min-w-full"
+                >
+                  <img
+                    src={resumeUrl}
+                    alt={`Resume - ${name}`}
+                    onError={() => setImgError(true)}
+                    className="max-h-[74vh] w-auto max-w-full object-contain rounded-sm shadow-xl"
+                  />
+                </div>
               </div>
             ) : (
               <div className="text-center p-8 space-y-3">
