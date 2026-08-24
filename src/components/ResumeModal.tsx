@@ -97,19 +97,23 @@ export function ResumeModal({ isOpen, resumeUrl, name, onClose }: ResumeModalPro
             </div>
           </div>
 
-          {/* Main Content Area - Responsive PDF & Image View */}
+          {/* Main Content Area - Desktop Native PDF / Mobile Instant Real Image View */}
           <div className="p-1 sm:p-2 overflow-hidden flex flex-col items-center justify-center bg-card">
             {isPdf ? (
-              <div className="w-full h-[76vh] sm:h-[80vh] md:h-[84vh] rounded-sm overflow-hidden border border-border bg-white shadow-inner">
-                <iframe
-                  src={
-                    isMobile
-                      ? `https://docs.google.com/viewer?url=${encodeURIComponent(resumeUrl)}&embedded=true`
-                      : `${resumeUrl}#page=1&view=FitH&toolbar=1`
-                  }
-                  title={`Resume - ${name}`}
-                  className="w-full h-full border-0 bg-white"
-                />
+              <div className="relative w-full h-[76vh] sm:h-[80vh] md:h-[84vh] flex items-center justify-center rounded-sm overflow-hidden border border-border bg-white shadow-inner">
+                {isMobile ? (
+                  <img
+                    src={`/api/certificates/thumbnail?url=${encodeURIComponent(resumeUrl)}`}
+                    alt={`Resume - ${name}`}
+                    className="max-h-full w-auto max-w-full object-contain rounded-sm select-none"
+                  />
+                ) : (
+                  <iframe
+                    src={`${resumeUrl}#page=1&view=FitH&toolbar=1`}
+                    title={`Resume - ${name}`}
+                    className="w-full h-full border-0 bg-white"
+                  />
+                )}
               </div>
             ) : !imgError ? (
               <div className="relative w-full h-[76vh] sm:h-[80vh] md:h-[84vh] flex items-center justify-center p-1 sm:p-2">

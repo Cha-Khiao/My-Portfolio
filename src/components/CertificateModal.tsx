@@ -106,17 +106,19 @@ export function CertificateModal({ cert, onClose }: CertificateModalProps) {
             )}
           </div>
 
-          {/* Main Viewer Area - Responsive Page-Fit Calculation */}
+          {/* Main Viewer Area - Desktop Native PDF / Mobile Instant Real Image View */}
           <div className="p-1 sm:p-2 flex flex-col items-center justify-center bg-card">
             {isPdf ? (
-              <div className="w-full h-[62vh] sm:h-[68vh] md:h-[72vh] rounded-sm overflow-hidden border border-border bg-white shadow-inner">
-                {isReady ? (
+              <div className="relative w-full h-[62vh] sm:h-[68vh] md:h-[72vh] flex items-center justify-center rounded-sm overflow-hidden border border-border bg-white shadow-inner">
+                {isMobile ? (
+                  <img
+                    src={`/api/certificates/thumbnail?url=${encodeURIComponent(cert.imageUrl!)}`}
+                    alt={cert.name}
+                    className="max-h-full w-auto max-w-full object-contain rounded-sm select-none"
+                  />
+                ) : isReady ? (
                   <iframe
-                    src={
-                      isMobile
-                        ? `https://docs.google.com/viewer?url=${encodeURIComponent(cert.imageUrl!)}&embedded=true`
-                        : `${cert.imageUrl}#page=1&zoom=page-fit&view=FitV&toolbar=1`
-                    }
+                    src={`${cert.imageUrl}#page=1&zoom=page-fit&view=FitV&toolbar=1`}
                     title={cert.name}
                     className="w-full h-full border-0 bg-white"
                   />
