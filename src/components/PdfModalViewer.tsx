@@ -143,8 +143,7 @@ export function PdfModalViewer({ url, alt = 'PDF Document' }: PdfModalViewerProp
   return (
     <div className="flex flex-col w-full h-full">
       {/* Zoom Control Bar */}
-      <div className="flex items-center justify-between px-3 sm:px-4 py-1.5 bg-zinc-900/90 border-b border-border/40 text-white flex-shrink-0">
-        <span className="text-[10px] sm:text-[11px] font-mono text-zinc-400">Vector PDF (คมชัดพิเศษ)</span>
+      <div className="flex items-center justify-end px-3 sm:px-4 py-1.5 bg-zinc-900/90 border-b border-border/40 text-white flex-shrink-0">
         <div className="flex items-center gap-1 bg-zinc-800/90 border border-zinc-700/60 rounded-lg p-0.5 shadow-sm">
           <button
             type="button"
